@@ -1,0 +1,27 @@
+{
+  "protocol": {
+    "name": "independently_reconstructed_temporal_validation",
+    "selection_metric": "mean date-wise Spearman IC on validation only",
+    "selection_tie_break": "first candidate in the declared order",
+    "final_fit": "refit selected parameters on train plus validation",
+    "test_use": "one prediction pass after selection; never used for tuning",
+    "seed": 42,
+    "threads": 4
+  },
+  "Ridge": [
+    {"alpha": 0.001},
+    {"alpha": 0.01},
+    {"alpha": 0.1},
+    {"alpha": 1.0},
+    {"alpha": 10.0}
+  ],
+  "LightGBM": [
+    {"learning_rate": 0.05, "n_estimators": 500, "num_leaves": 31, "max_depth": 4, "min_child_samples": 50, "reg_alpha": 0.0, "reg_lambda": 0.0},
+    {"learning_rate": 0.05, "n_estimators": 500, "num_leaves": 63, "max_depth": 6, "min_child_samples": 50, "reg_alpha": 0.0, "reg_lambda": 0.0},
+    {"learning_rate": 0.03, "n_estimators": 800, "num_leaves": 31, "max_depth": 6, "min_child_samples": 100, "reg_alpha": 0.0, "reg_lambda": 0.1},
+    {"learning_rate": 0.03, "n_estimators": 800, "num_leaves": 63, "max_depth": 6, "min_child_samples": 100, "reg_alpha": 0.1, "reg_lambda": 0.1},
+    {"learning_rate": 0.02, "n_estimators": 1200, "num_leaves": 31, "max_depth": -1, "min_child_samples": 100, "reg_alpha": 0.1, "reg_lambda": 1.0},
+    {"learning_rate": 0.02, "n_estimators": 1200, "num_leaves": 63, "max_depth": -1, "min_child_samples": 100, "reg_alpha": 1.0, "reg_lambda": 1.0}
+  ],
+  "paper_protocol_note": "The paper instead states 10-fold training-set CV, but does not identify the splitter, score, seed, selected values, or provide fitting code. These declared candidates implement the requested validation-only strong baselines and are not claimed to be the author baselines."
+}
