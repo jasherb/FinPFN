@@ -1,0 +1,40 @@
+{
+  "ir": {
+    "csi500": {
+      "FinPFN": 0.85,
+      "TabPFN": -0.44,
+      "Ridge": 0.60,
+      "LightGBM": 0.70
+    },
+    "us": {
+      "FinPFN": 0.77,
+      "TabPFN": -0.04,
+      "Ridge": 0.52,
+      "LightGBM": 0.78
+    }
+  },
+  "top_decile": {
+    "csi500": {
+      "FinPFN": {"annualized_sharpe": 5.1, "cumulative_return_percent": 30.5},
+      "LightGBM": {"annualized_sharpe": 3.1, "cumulative_return_percent": 23.5}
+    },
+    "us": {
+      "FinPFN": {"annualized_sharpe": 0.7, "cumulative_return_percent": 43.5},
+      "LightGBM": {"annualized_sharpe": 0.7, "cumulative_return_percent": 60.2}
+    }
+  },
+  "long_short": {
+    "csi500": {
+      "FinPFN": {"reported_sharpe": 9.8, "cumulative_return_percent": 69.0},
+      "LightGBM": {"reported_sharpe": 7.3, "cumulative_return_percent": 0.3}
+    },
+    "us": {
+      "FinPFN": {"reported_sharpe": 2.1, "cumulative_return_percent": 210.6},
+      "LightGBM": {"reported_sharpe": 2.2, "cumulative_return_percent": 280.6}
+    }
+  },
+  "notes": [
+    "Table 2 defines reported H-L Sharpe via notebook output as Sharpe(H)-Sharpe(L).",
+    "The published CSI LightGBM H-L cumulative return appears inconsistent with its decile endpoints and stored notebook output."
+  ]
+}

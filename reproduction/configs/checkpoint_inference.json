@@ -1,0 +1,18 @@
+{
+  "primary": {
+    "seed": 42,
+    "sampling_mode": "artifact_unique500",
+    "stocks_per_group": 50,
+    "sample_assets": 500,
+    "n_estimators": 8,
+    "prediction_statistic": "median",
+    "target_preprocessing": "sample z-score separately within each 50-stock date block",
+    "estimator_preprocessing": "TabPFNRegressor 2.0.8 defaults, matching uncommented notebook calls"
+  },
+  "stability_seeds": [4213, 2025],
+  "sensitivity_modes": [
+    "notebook_with_replacement",
+    "all_common"
+  ],
+  "note": "The primary mode matches the bundled CSV's 500 unique IDs per date. The executable notebook cell samples with replacement and is therefore retained only as a labelled sensitivity."
+}

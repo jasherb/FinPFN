@@ -1,0 +1,15 @@
+/CODEX.md
+/reproduction/logs/
+/reproduction/results/
+/reproduction/figures/
+/reproduction/artifacts/
+/reproduction/environment/environment.txt
+/reproduction/environment/audit-venv/
+
+*.parquet
+*.joblib
+*.ckpt
+*.log
+wandb/
+__pycache__/
+.DS_Store
