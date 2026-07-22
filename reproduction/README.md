@@ -10,15 +10,17 @@ conflict with the paper. Methodological extensions remain out of scope.
 - Paper, training code, notebook, checkpoints, and bundled CSI 500 predictions audited.
 - Official CSI 500, U.S., and CSI index-price parquets are present at repository
   root, hashed, ignored, and audited without modification.
-- Released FinPFN and vanilla TabPFN checkpoints both pass a one-date, one-group CPU
-  inference smoke at the artifact-default eight estimators. Full inference has not
-  run and no reproduction conclusion is claimed.
+- Full seed-42 released-checkpoint inference is complete for FinPFN and vanilla
+  TabPFN on a researcher-operated single A100 80GB GPU. Each produced 150,500
+  finite predictions with zero failed groups.
 - Full reconstructed CSI Ridge and LightGBM baselines are complete. Their test IRs
   are 0.616215 and 0.661700, respectively; both have full source coverage.
 - Codex-issued SSH or direct compute-server access is prohibited by the local policy
   and user instruction. Only the researcher may run the prepared manual wrappers.
-- No FinPFN training, full checkpoint job, large download, commit, or push has been
-  performed.
+- The common CSI evaluation, per-period IC, decile holdings/returns, turnover, and
+  figures are complete. The new FinPFN run reached paper-faithful IR 0.647677 versus
+  the paper's 0.85, while the bundled CSV exactly recovers 0.855546; this is not an
+  exact reproduction. No FinPFN training or post-test tuning has been performed.
 
 See `notes/audit.md` for the method trace and known discrepancies.
 
@@ -88,6 +90,8 @@ python reproduction/scripts/run_checkpoint_inference.py \
   --seeds 42 \
   --sampling-mode artifact_unique500 \
   --n-estimators 8 \
+  --estimator-random-state 42 \
+  --estimator-n-jobs 4 \
   --device cpu \
   --max-date-pairs 1 \
   --max-groups-per-date 1
@@ -99,12 +103,18 @@ The released notebook does not fit Ridge or LightGBM. Reconstructed baselines us
 only the validation period for selection and refit the selected model on train plus
 validation before one test prediction pass.
 
+After the CSI primary result, an estimator-seed discrepancy was identified: the
+completed artifact-shape run used estimator random state 42, while the released
+notebook omits the argument and TabPFN 2.0.8 therefore defaults to 0. Separate
+`notebook_exact` wrappers now reproduce the visible notebook choices without
+overwriting the primary files; see section 6 of `notes/manual_checkpoint_runbook.md`.
+
 ## Official execution order
 
 1. Dataset/schema/split validation. (complete)
-2. Released vanilla TabPFN and FinPFN checkpoint inference.
+2. Released vanilla TabPFN and FinPFN checkpoint inference. (complete for CSI seed 42)
 3. Ridge temporal-validation baseline. (complete for CSI)
 4. LightGBM temporal-validation baseline. (complete for CSI)
 5. IC series, IC mean, sample standard deviation, IR, decile portfolios, top decile,
-   long-short, gross Sharpe, and turnover from reproduced holdings.
+   long-short, gross Sharpe, and turnover from reproduced holdings. (complete for CSI)
 6. Fine-tuning only after checkpoint reproduction and only with explicit approval.

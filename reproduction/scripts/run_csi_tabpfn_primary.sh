@@ -15,4 +15,6 @@ python reproduction/scripts/run_checkpoint_inference.py \
   --seeds 42 \
   --sampling-mode artifact_unique500 \
   --n-estimators 8 \
+  --estimator-random-state 42 \
+  --estimator-n-jobs 4 \
   --device cuda

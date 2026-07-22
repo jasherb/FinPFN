@@ -10,11 +10,11 @@ done
 python reproduction/scripts/run_checkpoint_inference.py \
   --dataset 30features_csi500.parquet \
   --market csi500 \
-  --models FinPFN \
-  --output-dir reproduction/artifacts/predictions/csi500_primary \
+  --models TabPFN \
+  --output-dir reproduction/artifacts/predictions/csi500_notebook_exact \
   --seeds 42 \
-  --sampling-mode artifact_unique500 \
+  --sampling-mode notebook_with_replacement \
   --n-estimators 8 \
-  --estimator-random-state 42 \
+  --estimator-random-state 0 \
   --estimator-n-jobs 4 \
   --device cuda
