@@ -181,3 +181,28 @@ this appears to be a paper typographical error.
   overlaps are about 44.94%/50.31%; and the long-short series correlation is 0.6015
   with a 1.6883 percentage-point maximum difference. Recalculation matches both
   saved evaluator series to `2.22e-16`. See `notes/baseline_consistency_check.md`.
+- Full researcher-operated CSI checkpoint inference completed at commit `1155bf3`
+  on a single visible A100 80GB GPU. TabPFN and FinPFN each produced 150,500 finite
+  predictions over 301 dates with all 3,010 groups successful. Runtime was 1,669.336
+  and 1,697.121 seconds, respectively. Returned artifacts passed the compute-host
+  SHA-256 checks.
+- Under the notebook's task-preprocessed-target IC definition, the new TabPFN run
+  produced mean IC -0.030197, IC SD 0.065235, and IR -0.462894; FinPFN produced
+  0.031801, 0.049099, and 0.647677. The bundled file still exactly recovers FinPFN
+  IR 0.855546. Direct overlapping-prediction correlations are only 0.362 Spearman
+  for FinPFN and 0.312 for TabPFN, consistent with the missing exact random
+  sampling/grouping state being material. See `notes/checkpoint_csi500_run.md`.
+- Post-result code comparison found that the completed primary explicitly used
+  estimator random state 42, while the notebook omits that argument and TabPFN 2.0.8
+  defaults to 0. This is now recorded as a primary-run deviation. Separate
+  notebook-exact wrappers use sampling seed 42, with-replacement groups, the
+  notebook's post-sampling ID sort, and estimator state 0; a one-date, one-group CPU
+  smoke passed for both checkpoints.
+- The notebook's default `n_jobs=-1` is capped at 4 in all wrappers for resource
+  compliance. On fixed one-group inputs, predictions at 4 and `-1` workers were
+  elementwise identical for both checkpoints.
+- Holding the one-group context/query rows fixed, changing only estimator state 0
+  to 42 gave prediction-rank correlations of 0.6794 for FinPFN and 0.9966 for
+  TabPFN. This single-group smoke is not a performance result, but it confirms that
+  the estimator-state mismatch can materially change FinPFN ranks and is not merely
+  a metadata difference.

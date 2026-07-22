@@ -33,7 +33,7 @@ reproduction/environment/audit-venv/bin/python \
   --models FinPFN TabPFN \
   --output-dir reproduction/artifacts/predictions/smoke_n8 \
   --seeds 42 --sampling-mode artifact_unique500 \
-  --n-estimators 8 --device cpu \
+  --n-estimators 8 --estimator-random-state 42 --estimator-n-jobs 4 --device cpu \
   --max-date-pairs 1 --max-groups-per-date 1
 ```
 
@@ -113,16 +113,17 @@ This diagnostic imports the unchanged evaluator's `compute_portfolios` function 
 reconstructs both sets of holdings and return series independently. Results are in
 `notes/baseline_consistency_check.md`.
 
-## Primary CSI checkpoint run (not yet launched)
+## Completed primary CSI checkpoint run
 
-Before running, select one permitted free GPU and set `CUDA_VISIBLE_DEVICES`. This
-job is intentionally single-GPU. The wrapper refuses to run until that variable is
-set.
+The researcher manually selected one permitted GPU and ran the separate wrappers on
+the approved compute host. Codex did not access the host. Both jobs were
+single-GPU, seed-42 inference only:
 
 ```bash
 bash reproduction/scripts/check_server.sh
 bash reproduction/scripts/capture_environment.sh
-bash reproduction/scripts/run_csi_checkpoint_primary.sh
+bash reproduction/scripts/run_csi_tabpfn_primary.sh
+bash reproduction/scripts/run_csi_finpfn_primary.sh
 ```
 
 Equivalent direct command:
@@ -133,19 +134,20 @@ python reproduction/scripts/run_checkpoint_inference.py \
   --models TabPFN FinPFN \
   --output-dir reproduction/artifacts/predictions/csi500_primary \
   --seeds 42 --sampling-mode artifact_unique500 \
-  --n-estimators 8 --device cuda
+  --n-estimators 8 --estimator-random-state 42 --estimator-n-jobs 4 --device cuda
 ```
 
-The equivalent U.S. wrapper is `run_us_checkpoint_primary.sh`; it is not launched
-until the CSI primary and normalized evaluation succeed.
+Both CSI runs completed with 150,500 predictions, 3,010/3,010 successful groups,
+and no non-finite predictions. The equivalent U.S. wrapper is
+`run_us_checkpoint_primary.sh`; it has not been launched.
 
 The full step-by-step researcher-only runbook, including separate vanilla TabPFN
 and FinPFN wrappers, output verification, and manual artifact return, is in
 `notes/manual_checkpoint_runbook.md`. Codex must not execute those server commands.
 
-After the seed-42 primary completes, reasonable stability runs are seeds 4213 and
-2025. Literal notebook-with-replacement and all-common modes are sensitivities and
-must not replace the primary result.
+Seeds 4213 and 2025 and the literal notebook-with-replacement/all-common modes remain
+possible sensitivities only. They must not replace the primary result or be chosen
+based on test metrics.
 
 ## Full reconstructed baselines (completed for CSI)
 
@@ -163,18 +165,21 @@ Both scripts select only on the official validation period, refit on train plus
 validation, and predict test once. Their candidates are fixed before execution in
 `reproduction/configs/baseline_search.json`.
 
-## Common corrected evaluation
+## Completed common corrected evaluation
 
 Pass every reproduced prediction parquet to the same invocation:
 
 ```bash
-python reproduction/scripts/evaluate_predictions.py \
+reproduction/environment/audit-venv/bin/python \
+  reproduction/scripts/evaluate_predictions.py \
   --predictions \
-    reproduction/artifacts/predictions/csi500_primary/*.parquet \
-    reproduction/artifacts/predictions/csi500_baselines/*.parquet \
+    reproduction/artifacts/predictions/csi500_baselines/csi500_ridge_seed42.parquet \
+    reproduction/artifacts/predictions/csi500_baselines/csi500_lightgbm_seed42.parquet \
+    reproduction/artifacts/predictions/csi500_primary/csi500_tabpfn_seed42_artifact_unique500.parquet \
+    reproduction/artifacts/predictions/csi500_primary/csi500_finpfn_seed42_artifact_unique500.parquet \
   --dataset 30features_csi500.parquet --market csi500 \
-  --output-dir reproduction/results \
-  --figures-dir reproduction/figures
+  --output-dir reproduction/results/csi500_all_models_primary \
+  --figures-dir reproduction/figures/csi500_all_models_primary
 ```
 
 The evaluator defaults to the intersection of available dates and asset-date pairs
@@ -187,11 +192,47 @@ top-minus-bottom series.
 New checkpoint predictions are compared with the bundled artifact using:
 
 ```bash
-python reproduction/scripts/compare_bundled_predictions.py \
-  --new-predictions reproduction/artifacts/predictions/csi500_primary/*.parquet \
+reproduction/environment/audit-venv/bin/python \
+  reproduction/scripts/compare_bundled_predictions.py \
+  --new-predictions \
+    reproduction/artifacts/predictions/csi500_primary/csi500_tabpfn_seed42_artifact_unique500.parquet \
+    reproduction/artifacts/predictions/csi500_primary/csi500_finpfn_seed42_artifact_unique500.parquet \
   --bundled results/finpfn_perf_csi500.csv.gz \
   --output reproduction/results/bundled_prediction_comparison.csv
 ```
+
+The result and discrepancy record is in `notes/checkpoint_csi500_run.md`.
+
+## Prepared notebook-exact diagnostic
+
+After the primary comparison, inspection showed that the released notebook omits
+`TabPFNRegressor.random_state`; TabPFN 2.0.8 therefore uses 0, whereas the completed
+artifact-shape primary used 42. The predeclared notebook-exact diagnostic also uses
+the notebook's with-replacement stock sampling and post-sampling ID sort, and writes
+to a separate directory:
+
+```bash
+bash reproduction/scripts/run_csi_tabpfn_notebook_exact.sh
+bash reproduction/scripts/run_csi_finpfn_notebook_exact.sh
+
+python reproduction/scripts/evaluate_notebook_checkpoint_ic.py \
+  --predictions \
+    reproduction/artifacts/predictions/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet \
+    reproduction/artifacts/predictions/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet \
+  --output-dir reproduction/results/csi500_notebook_exact
+```
+
+A one-date, one-group CPU smoke passed for both checkpoints with sampling seed 42,
+estimator random state 0, 50 predictions, and zero failures. Full execution remains
+researcher-only and has not been launched by Codex.
+
+The notebook leaves `n_jobs=-1`, while the wrappers cap it at 4 for
+policy-compliant resource use. On the identical smoke input, `n_jobs=4` and `-1`
+gave elementwise-identical predictions for both checkpoints.
+
+On the identical smoke group, estimator states 0 and 42 produced prediction
+Spearman correlations of 0.6794 for FinPFN and 0.9966 for TabPFN. This is a
+configuration-sensitivity check only, not a test-period performance result.
 
 ## Static validation
 

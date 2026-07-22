@@ -84,6 +84,12 @@ test dates, 50 context/query stocks, and the primary 500-unique-asset sampling m
 They refuse to replace existing outputs unless `--overwrite` is explicitly passed
 to the underlying Python command.
 
+The completed primary run also used estimator `random_state=42`. This is now
+explicit in its wrappers so the returned files remain reproducible. The released
+notebook actually omits that argument, which means TabPFN 2.0.8 uses its default
+estimator random state of 0. The separate notebook-exact diagnostic in section 6
+corrects this without overwriting the completed primary run.
+
 ## 2. Run vanilla TabPFN first
 
 ```bash
@@ -102,6 +108,8 @@ python reproduction/scripts/run_checkpoint_inference.py \
   --seeds 42 \
   --sampling-mode artifact_unique500 \
   --n-estimators 8 \
+  --estimator-random-state 42 \
+  --estimator-n-jobs 4 \
   --device cuda
 ```
 
@@ -123,6 +131,8 @@ python reproduction/scripts/run_checkpoint_inference.py \
   --seeds 42 \
   --sampling-mode artifact_unique500 \
   --n-estimators 8 \
+  --estimator-random-state 42 \
+  --estimator-n-jobs 4 \
   --device cuda
 ```
 
@@ -184,3 +194,69 @@ reproduction/environment/audit-venv/bin/python \
 The combined normalized evaluation will then use these two files plus the completed
 Ridge and LightGBM prediction files. No FinPFN fine-tuning is authorized at this
 stage.
+
+## 6. Notebook-exact diagnostic after the primary discrepancy
+
+This is a separate, predeclared diagnostic. It follows the executable notebook's
+visible inference choices: NumPy stock-sampling seed 42, sampling with replacement,
+50 stocks per group sorted by ID after sampling, eight estimators, and the TabPFN
+2.0.8 default estimator random state of 0. It writes to `csi500_notebook_exact` and
+cannot overwrite the completed `csi500_primary` files.
+
+The wrappers cap `n_jobs` at 4 instead of the notebook's default `-1` to respect the
+resource policy. A fixed-input smoke produced elementwise-identical predictions at
+4 and `-1` workers for both checkpoints, so this cap is operational rather than a
+model-output change.
+
+The deterministic loader audit predicts 301 date pairs, 3,911 groups, and 195,550
+rows per model. Because sampling is with replacement, only about 120,620 unique
+asset-dates are expected and about 74,930 rows are expected repetitions. Based on
+the completed primary timings, allow roughly 36-37 minutes per model, or about 73
+minutes sequentially on the same A100; actual time may vary.
+
+After pulling the commit containing these wrappers, run both sequentially on the
+same manually selected GPU:
+
+```bash
+export CUDA_VISIBLE_DEVICES=<FREE_GPU_INDEX>
+mkdir -p reproduction/logs
+
+bash reproduction/scripts/run_csi_tabpfn_notebook_exact.sh \
+  > reproduction/logs/csi500_tabpfn_notebook_exact.log 2>&1
+
+bash reproduction/scripts/run_csi_finpfn_notebook_exact.sh \
+  > reproduction/logs/csi500_finpfn_notebook_exact.log 2>&1
+```
+
+The combined wrapper is equivalent:
+
+```bash
+bash reproduction/scripts/run_csi_checkpoint_notebook_exact.sh
+```
+
+Expected output names are:
+
+```text
+reproduction/artifacts/predictions/csi500_notebook_exact/
+  csi500_tabpfn_seed42_notebook_with_replacement.parquet
+  csi500_tabpfn_seed42_notebook_with_replacement.metadata.json
+  csi500_finpfn_seed42_notebook_with_replacement.parquet
+  csi500_finpfn_seed42_notebook_with_replacement.metadata.json
+```
+
+Because sampling is with replacement, repeated asset-date rows are expected and
+must not be treated as inference failures. Evaluate the notebook-faithful IC while
+retaining those repetitions with:
+
+```bash
+python reproduction/scripts/evaluate_notebook_checkpoint_ic.py \
+  --predictions \
+    reproduction/artifacts/predictions/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet \
+    reproduction/artifacts/predictions/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet \
+  --output-dir reproduction/results/csi500_notebook_exact
+```
+
+For the corrected common raw-return comparison, pass the same files to
+`evaluate_predictions.py`; that evaluator deliberately collapses repeated
+asset-date rows before forming a common universe. Neither result may be selected or
+discarded according to its test performance.

@@ -1,7 +1,8 @@
 # Artifact-faithful FinPFN reproduction report
 
-> Interim report — full released-checkpoint inference is still pending. This file
-> must not be read as a successful reproduction claim.
+> CSI seed-42 checkpoint inference and common evaluation are complete. The released
+> FinPFN checkpoint did not recover the bundled/paper FinPFN ICIR, so this file must
+> not be read as a successful exact reproduction claim.
 
 ## Scope and decision rule
 
@@ -9,6 +10,12 @@ Released code, checkpoints, notebook behavior, downloaded parquets, and checkpoi
 metadata govern where they conflict with the paper. No FinPFN retraining,
 transaction costs, uncertainty gating, alternative features, or extra models have
 been introduced.
+
+The completed CSI primary is an artifact-shape reconstruction, not a literal
+execution of the visible notebook: it used 500 unique assets and estimator random
+state 42. The notebook uses with-replacement stock sampling and the TabPFN 2.0.8
+default estimator random state 0. A separately named notebook-exact diagnostic is
+prepared so this ambiguity can be tested without overwriting the primary result.
 
 ## Dataset status
 
@@ -23,15 +30,18 @@ availability cannot be independently proven.
 Checkpoint inference uses TabPFN 2.0.8, released checkpoint architecture metadata,
 50 context and 50 query stocks on adjacent dates, group-wise sample-standardized
 context labels, estimator-default preprocessing, median prediction, eight ensemble
-members, and seed 42 for the primary run. The primary 500-without-replacement mode
+members, sampling seed 42, and estimator random state 42 for the primary run. The
+primary 500-without-replacement mode
 matches the bundled CSV's observable 500-unique-assets-per-date shape. The live
 notebook's with-replacement code is retained only as a sensitivity because it cannot
 produce that shape in one pass.
 
 ## Completed checks and result
 
-- Both released CSI checkpoints pass one-date, one-group CPU inference with no
-  failures. This confirms compatibility only; it is not a performance result.
+- Full released-checkpoint inference completed for both models with seed 42 on one
+  NVIDIA A100 80GB PCIe. Each produced 150,500 finite predictions across 301 dates,
+  500 assets per date, with all 3,010 groups successful and no duplicate asset-date
+  rows. TabPFN took 1,669.336 seconds and FinPFN took 1,697.121 seconds.
 - A newly reconstructed Ridge baseline selected alpha 0.001 using validation-only
   mean date-wise Spearman IC. On all 302 CSI test dates it achieved mean IC
   0.040454, IC SD 0.065650, and IR 0.616215. Its primary actual-spread Sharpe was
@@ -51,15 +61,26 @@ produce that shape in one pass.
   Pearson correlation is 0.5485, top-decile overlap is 44.94%, and long-short return
   correlation is 0.6015 with a 1.6883 percentage-point maximum difference. Full
   evidence is in `baseline_consistency_check.md`; no evaluation change was made.
+- Under the paper-faithful task-preprocessed-target IC definition, the new TabPFN
+  run achieved mean IC -0.030197, IC SD 0.065235, and IR -0.462894 versus the paper's
+  -0.44. FinPFN achieved 0.031801, 0.049099, and 0.647677 versus the paper's 0.85.
+  The bundled prediction CSV itself exactly recovers FinPFN IR 0.855546 and TabPFN
+  IR -0.442639, so the FinPFN discrepancy lies between newly generated checkpoint
+  predictions and the unreleased sampling/grouping state behind the bundle.
+- On the common raw-return universe of 301 dates by 500 assets, FinPFN, TabPFN,
+  Ridge, and LightGBM achieved IRs of 0.579996, -0.450515, 0.620244, and 0.644403.
+  Their true gross long-short Sharpes were 5.124263, -3.549967, 6.272572, and
+  6.316055, respectively. Full IC, portfolio, turnover, runtime, and comparison
+  details are in `checkpoint_csi500_run.md`.
 
-## Pending before qualitative conclusions
+## Remaining scope and limitations
 
-1. Full released-checkpoint inference for FinPFN and vanilla TabPFN on an approved
-   GPU route.
-2. Common-date combined evaluation, official CSI regime windows, stability seeds,
-   and the requested figures/tables.
-3. Equivalent U.S. runs; official U.S. regime dates remain unavailable without the
-   missing VIX episode source.
+1. The exact random sampling/grouping state used for the bundled checkpoint
+   predictions is not published. Additional seeds would be sensitivity analysis,
+   not recovery of that missing state, and must not be selected using test results.
+2. Equivalent U.S. runs remain outstanding; official U.S. regime dates remain
+   unavailable without the missing VIX episode source.
 
-No claim about FinPFN outperforming TabPFN, Ridge, or LightGBM will be made until
-the newly generated checkpoint predictions and combined metrics exist.
+The generated CSI predictions and combined metrics now exist. They do not support a
+claim that the new FinPFN checkpoint run exactly reproduced the paper result, and no
+post-test tuning or FinPFN retraining has been performed.
