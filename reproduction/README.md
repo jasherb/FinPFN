@@ -13,16 +13,22 @@ conflict with the paper. Methodological extensions remain out of scope.
 - Full seed-42 released-checkpoint inference is complete for FinPFN and vanilla
   TabPFN on a researcher-operated single A100 80GB GPU. Each produced 150,500
   finite predictions with zero failed groups.
+- The separate notebook-exact follow-up is also complete: each model produced
+  195,550 finite rows with all 3,911 groups successful. FinPFN achieved literal
+  notebook IR 0.797333 versus the paper's 0.85.
 - Full reconstructed CSI Ridge and LightGBM baselines are complete. Their test IRs
   are 0.616215 and 0.661700, respectively; both have full source coverage.
 - Codex-issued SSH or direct compute-server access is prohibited by the local policy
   and user instruction. Only the researcher may run the prepared manual wrappers.
 - The common CSI evaluation, per-period IC, decile holdings/returns, turnover, and
-  figures are complete. The new FinPFN run reached paper-faithful IR 0.647677 versus
-  the paper's 0.85, while the bundled CSV exactly recovers 0.855546; this is not an
-  exact reproduction. No FinPFN training or post-test tuning has been performed.
+  figures are complete. On the notebook-exact 120,620-asset-date common universe,
+  FinPFN leads Ridge and LightGBM in raw-return IR (0.712002 versus 0.539210 and
+  0.566578), but not true gross long-short Sharpe (4.383559 versus 4.888952 and
+  4.810360). This is a partial, not exact, reproduction. No FinPFN training or
+  post-test tuning has been performed.
 
-See `notes/audit.md` for the method trace and known discrepancies.
+See `notes/csi500_reproduction_report_zh.md` for the consolidated CSI 500 report and
+`notes/audit.md` for the lower-level method trace and known discrepancies.
 
 ## Intended directory layout
 
