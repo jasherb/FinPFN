@@ -1,5 +1,8 @@
 # Artifact-faithful FinPFN reproduction report
 
+The consolidated, data-rich Chinese CSI report is
+`reproduction/notes/csi500_reproduction_report_zh.md`.
+
 > CSI seed-42 checkpoint inference and common evaluation are complete. The released
 > FinPFN checkpoint did not recover the bundled/paper FinPFN ICIR, so this file must
 > not be read as a successful exact reproduction claim.
@@ -15,7 +18,7 @@ The completed CSI primary is an artifact-shape reconstruction, not a literal
 execution of the visible notebook: it used 500 unique assets and estimator random
 state 42. The notebook uses with-replacement stock sampling and the TabPFN 2.0.8
 default estimator random state 0. A separately named notebook-exact diagnostic is
-prepared so this ambiguity can be tested without overwriting the primary result.
+complete; it tested this ambiguity without overwriting the primary result.
 
 ## Dataset status
 
@@ -31,10 +34,10 @@ Checkpoint inference uses TabPFN 2.0.8, released checkpoint architecture metadat
 50 context and 50 query stocks on adjacent dates, group-wise sample-standardized
 context labels, estimator-default preprocessing, median prediction, eight ensemble
 members, sampling seed 42, and estimator random state 42 for the primary run. The
-primary 500-without-replacement mode
-matches the bundled CSV's observable 500-unique-assets-per-date shape. The live
-notebook's with-replacement code is retained only as a sensitivity because it cannot
-produce that shape in one pass.
+primary 500-without-replacement mode matches the bundled CSV's observable
+500-unique-assets-per-date shape. The completed notebook-exact follow-up instead
+uses the visible notebook's with-replacement sampling, post-sampling ID sort, and
+estimator state 0.
 
 ## Completed checks and result
 
@@ -72,6 +75,17 @@ produce that shape in one pass.
   Their true gross long-short Sharpes were 5.124263, -3.549967, 6.272572, and
   6.316055, respectively. Full IC, portfolio, turnover, runtime, and comparison
   details are in `checkpoint_csi500_run.md`.
+- The researcher-operated notebook-exact follow-up completed with 195,550 finite
+  rows per model, 120,620 unique asset-dates, 74,930 expected repeated rows, and all
+  3,911 groups successful. Literal notebook IC retained repetitions: FinPFN achieved
+  mean IC 0.043864, IC SD 0.055013, and IR 0.797333; TabPFN achieved -0.034296,
+  0.068915, and -0.497656. This is materially closer to the paper but not exact.
+- After collapsing repetitions and restricting all models to the same 120,620
+  asset-dates, raw-return IR was 0.712002 for FinPFN, 0.566578 for LightGBM,
+  0.539210 for Ridge, and -0.522875 for TabPFN. FinPFN therefore recovered the
+  common-universe IC/IR lead. Its true gross long-short Sharpe was 4.383559 versus
+  4.810360 for LightGBM and 4.888952 for Ridge, so portfolio dominance was not
+  reproduced.
 
 ## Remaining scope and limitations
 
@@ -81,6 +95,7 @@ produce that shape in one pass.
 2. Equivalent U.S. runs remain outstanding; official U.S. regime dates remain
    unavailable without the missing VIX episode source.
 
-The generated CSI predictions and combined metrics now exist. They do not support a
-claim that the new FinPFN checkpoint run exactly reproduced the paper result, and no
-post-test tuning or FinPFN retraining has been performed.
+The generated CSI predictions and combined metrics now exist. They support a
+partial reproduction of FinPFN's ranking advantage under the notebook-exact
+configuration, but not an exact paper match or comprehensive portfolio advantage.
+No post-test tuning or FinPFN retraining has been performed.

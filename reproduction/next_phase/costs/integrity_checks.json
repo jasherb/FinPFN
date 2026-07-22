@@ -1,0 +1,133 @@
+{
+  "holdings": {
+    "duplicate_model_seed_date_id_rows": 0,
+    "models": [
+      "FinPFN",
+      "LightGBM",
+      "Ridge",
+      "TabPFN"
+    ],
+    "dates": 301,
+    "rows": 482480,
+    "assets_per_model_date_min": 373,
+    "assets_per_model_date_mean": 400.7308970099668,
+    "assets_per_model_date_max": 424,
+    "common_universe_identical_across_models_each_date": true,
+    "exactly_one_decile_per_model_asset_date": true
+  },
+  "prediction_integrity": {
+    "FinPFN": {
+      "input_rows": 195550,
+      "valid_rows": 195550,
+      "unique_asset_dates": 120620,
+      "repeated_rows_beyond_first": 74930,
+      "maximum_repetitions": 9,
+      "common_holding_rows": 120620,
+      "holding_decile_mismatches_from_own_prediction": 0,
+      "aggregation_before_deciles": "mean prediction by model/date/id",
+      "target_used_to_form_deciles": false
+    },
+    "TabPFN": {
+      "input_rows": 195550,
+      "valid_rows": 195550,
+      "unique_asset_dates": 120620,
+      "repeated_rows_beyond_first": 74930,
+      "maximum_repetitions": 9,
+      "common_holding_rows": 120620,
+      "holding_decile_mismatches_from_own_prediction": 0,
+      "aggregation_before_deciles": "mean prediction by model/date/id",
+      "target_used_to_form_deciles": false
+    },
+    "Ridge": {
+      "input_rows": 186213,
+      "valid_rows": 186213,
+      "unique_asset_dates": 186213,
+      "repeated_rows_beyond_first": 0,
+      "maximum_repetitions": 1,
+      "common_holding_rows": 120620,
+      "holding_decile_mismatches_from_own_prediction": 0,
+      "aggregation_before_deciles": "mean prediction by model/date/id",
+      "target_used_to_form_deciles": false
+    },
+    "LightGBM": {
+      "input_rows": 186213,
+      "valid_rows": 186213,
+      "unique_asset_dates": 186213,
+      "repeated_rows_beyond_first": 0,
+      "maximum_repetitions": 1,
+      "common_holding_rows": 120620,
+      "holding_decile_mismatches_from_own_prediction": 0,
+      "aggregation_before_deciles": "mean prediction by model/date/id",
+      "target_used_to_form_deciles": false
+    }
+  },
+  "frozen_turnover_comparison": [
+    {
+      "model": "FinPFN",
+      "seed": 42,
+      "decile": 10,
+      "recomputed_excluding_initial": 0.9178777043452903,
+      "frozen_mean_one_way_turnover": 0.9178777043452904,
+      "difference": -1.1102230246251565e-16
+    },
+    {
+      "model": "FinPFN",
+      "seed": 42,
+      "decile": 1,
+      "recomputed_excluding_initial": 0.8643796898255206,
+      "frozen_mean_one_way_turnover": 0.8643796898255206,
+      "difference": 0.0
+    },
+    {
+      "model": "LightGBM",
+      "seed": 42,
+      "decile": 10,
+      "recomputed_excluding_initial": 0.7641864162438612,
+      "frozen_mean_one_way_turnover": 0.7641864162438612,
+      "difference": 0.0
+    },
+    {
+      "model": "LightGBM",
+      "seed": 42,
+      "decile": 1,
+      "recomputed_excluding_initial": 0.7859460570941,
+      "frozen_mean_one_way_turnover": 0.7859460570941,
+      "difference": 0.0
+    },
+    {
+      "model": "Ridge",
+      "seed": 42,
+      "decile": 10,
+      "recomputed_excluding_initial": 0.7282805297327116,
+      "frozen_mean_one_way_turnover": 0.7282805297327115,
+      "difference": 1.1102230246251565e-16
+    },
+    {
+      "model": "Ridge",
+      "seed": 42,
+      "decile": 1,
+      "recomputed_excluding_initial": 0.7487953662899776,
+      "frozen_mean_one_way_turnover": 0.7487953662899776,
+      "difference": 0.0
+    },
+    {
+      "model": "TabPFN",
+      "seed": 42,
+      "decile": 10,
+      "recomputed_excluding_initial": 0.9105389058951312,
+      "frozen_mean_one_way_turnover": 0.9105389058951312,
+      "difference": 0.0
+    },
+    {
+      "model": "TabPFN",
+      "seed": 42,
+      "decile": 1,
+      "recomputed_excluding_initial": 0.9160445365909061,
+      "frozen_mean_one_way_turnover": 0.916044536590906,
+      "difference": 1.1102230246251565e-16
+    }
+  ],
+  "maximum_absolute_frozen_turnover_difference": 1.1102230246251565e-16,
+  "long_short_return_identity_verified": true,
+  "return_turnover_date_alignment_verified": true
+}

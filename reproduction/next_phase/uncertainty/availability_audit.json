@@ -1,0 +1,97 @@
+{
+  "conclusion": "Frozen artifacts contain only aggregate median and mean; they do not contain member predictions or predictive-distribution summaries sufficient for an uncertainty calibration audit.",
+  "artifacts": [
+    {
+      "model": "FinPFN",
+      "rows": 195550,
+      "columns": [
+        "market",
+        "model",
+        "seed",
+        "date",
+        "id",
+        "context_date",
+        "group_id",
+        "prediction",
+        "prediction_mean",
+        "target_group_z",
+        "status",
+        "inference_seconds"
+      ],
+      "has_aggregate_median": true,
+      "has_aggregate_mean": true,
+      "has_all_estimator_predictions": false,
+      "has_predictive_standard_deviation": false,
+      "has_quantiles": false,
+      "has_logits": false,
+      "has_distributional_outputs": false,
+      "metadata_n_estimators": 8,
+      "path": "reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet",
+      "sha256": "03e62d18bf14cb6a3787213a87369adf12914d65748f8d1536a7bc5cecca76f3",
+      "classified_columns": {
+        "member_prediction_columns": [],
+        "standard_deviation_columns": [],
+        "quantile_columns": [],
+        "logit_columns": [],
+        "distribution_columns": [],
+        "aggregate_prediction_columns": [
+          "prediction",
+          "prediction_mean"
+        ]
+      },
+      "aggregate_nonfinite_counts": {
+        "prediction": 0,
+        "prediction_mean": 0
+      },
+      "metadata_path": "reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.metadata.json",
+      "metadata_sampling_mode": "notebook_with_replacement",
+      "metadata_estimator_random_state": 0
+    },
+    {
+      "model": "TabPFN",
+      "rows": 195550,
+      "columns": [
+        "market",
+        "model",
+        "seed",
+        "date",
+        "id",
+        "context_date",
+        "group_id",
+        "prediction",
+        "prediction_mean",
+        "target_group_z",
+        "status",
+        "inference_seconds"
+      ],
+      "has_aggregate_median": true,
+      "has_aggregate_mean": true,
+      "has_all_estimator_predictions": false,
+      "has_predictive_standard_deviation": false,
+      "has_quantiles": false,
+      "has_logits": false,
+      "has_distributional_outputs": false,
+      "metadata_n_estimators": 8,
+      "path": "reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet",
+      "sha256": "0fa76d578741b3a50a9f6e1b96009bae6fe4f884b9ce7a3fe0f52b6cec95c26a",
+      "classified_columns": {
+        "member_prediction_columns": [],
+        "standard_deviation_columns": [],
+        "quantile_columns": [],
+        "logit_columns": [],
+        "distribution_columns": [],
+        "aggregate_prediction_columns": [
+          "prediction",
+          "prediction_mean"
+        ]
+      },
+      "aggregate_nonfinite_counts": {
+        "prediction": 0,
+        "prediction_mean": 0
+      },
+      "metadata_path": "reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.metadata.json",
+      "metadata_sampling_mode": "notebook_with_replacement",
+      "metadata_estimator_random_state": 0
+    }
+  ]
+}

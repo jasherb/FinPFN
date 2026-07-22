@@ -1,0 +1,29 @@
+{
+  "analysis_split": "validation_only",
+  "validation_start_inclusive": "2021-01-01T00:00:00",
+  "validation_end_exclusive": "2022-01-01T00:00:00",
+  "coverage_grid": [
+    1.0,
+    0.8,
+    0.6,
+    0.4,
+    0.2
+  ],
+  "calibration_uncertainty_quantiles": 5,
+  "diagnostic_fixed_cost_bps_per_one_way_turnover": 10,
+  "common_target": "raw CSI return; cross-sectional z/rank used for errors",
+  "inputs": [
+    {
+      "path": "reproduction/next_phase/uncertainty/artifacts/smoke_validation/csi500_tabpfn_seed42_validation_notebook_with_replacement_members.parquet",
+      "sha256": "c5d2b0217bd9175ec5dc39f1f9fd2556ba156a43e3a19ff7616af2684d7a44a5"
+    },
+    {
+      "path": "reproduction/next_phase/uncertainty/artifacts/smoke_validation/csi500_finpfn_seed42_validation_notebook_with_replacement_members.parquet",
+      "sha256": "425397f23c6985b5abed2b207e23c5cea9cfb2e842a28a4e8aa136de01b98548"
+    },
+    {
+      "path": "30features_csi500.parquet",
+      "sha256": "9e0d61f5d70151d4f2f7b40918a8ddb79f86fb54a0fe86759f5c1f2869fe1b3e"
+    }
+  ]
+}

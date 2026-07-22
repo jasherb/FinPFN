@@ -206,3 +206,12 @@ this appears to be a paper typographical error.
   TabPFN. This single-group smoke is not a performance result, but it confirms that
   the estimator-state mismatch can materially change FinPFN ranks and is not merely
   a metadata difference.
+- The full researcher-operated notebook-exact run completed with 195,550 finite
+  rows, 120,620 unique asset-dates, 74,930 expected repetitions, and 3,911/3,911
+  successful groups per model. Runtime was 2,054.745 seconds for TabPFN and
+  2,078.874 seconds for FinPFN. Literal repeated-row notebook IR was -0.497656 and
+  0.797333, materially closing but not eliminating the paper gap.
+- In the common raw-return evaluation after collapsing repetitions, FinPFN IR was
+  0.712002 versus 0.566578 for LightGBM and 0.539210 for Ridge. FinPFN true gross
+  H-L Sharpe was 4.383559 versus 4.810360 and 4.888952, respectively. The ranking
+  advantage is partially recovered; portfolio dominance is not.

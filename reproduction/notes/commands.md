@@ -203,7 +203,7 @@ reproduction/environment/audit-venv/bin/python \
 
 The result and discrepancy record is in `notes/checkpoint_csi500_run.md`.
 
-## Prepared notebook-exact diagnostic
+## Completed notebook-exact diagnostic
 
 After the primary comparison, inspection showed that the released notebook omits
 `TabPFNRegressor.random_state`; TabPFN 2.0.8 therefore uses 0, whereas the completed
@@ -223,8 +223,10 @@ python reproduction/scripts/evaluate_notebook_checkpoint_ic.py \
 ```
 
 A one-date, one-group CPU smoke passed for both checkpoints with sampling seed 42,
-estimator random state 0, 50 predictions, and zero failures. Full execution remains
-researcher-only and has not been launched by Codex.
+estimator random state 0, 50 predictions, and zero failures. The researcher then
+completed the full runs manually: TabPFN took 2,054.745 seconds and FinPFN took
+2,078.874 seconds; each produced 195,550 finite rows with 3,911/3,911 successful
+groups. Literal notebook IRs were -0.497656 and 0.797333, respectively.
 
 The notebook leaves `n_jobs=-1`, while the wrappers cap it at 4 for
 policy-compliant resource use. On the identical smoke input, `n_jobs=4` and `-1`
@@ -233,6 +235,37 @@ gave elementwise-identical predictions for both checkpoints.
 On the identical smoke group, estimator states 0 and 42 produced prediction
 Spearman correlations of 0.6794 for FinPFN and 0.9966 for TabPFN. This is a
 configuration-sensitivity check only, not a test-period performance result.
+
+After the ignored prediction/metadata pairs were returned locally, the frozen
+comparisons used their actual local paths:
+
+```bash
+reproduction/environment/audit-venv/bin/python \
+  reproduction/scripts/evaluate_notebook_checkpoint_ic.py \
+  --predictions \
+    reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet \
+    reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet \
+  --output-dir reproduction/results/csi500_notebook_exact
+
+reproduction/environment/audit-venv/bin/python \
+  reproduction/scripts/compare_bundled_predictions.py \
+  --new-predictions \
+    reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet \
+    reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet \
+  --bundled results/finpfn_perf_csi500.csv.gz \
+  --output reproduction/results/bundled_prediction_comparison_notebook_exact.csv
+
+reproduction/environment/audit-venv/bin/python \
+  reproduction/scripts/evaluate_predictions.py \
+  --predictions \
+    reproduction/artifacts/predictions/csi500_baselines/csi500_ridge_seed42.parquet \
+    reproduction/artifacts/predictions/csi500_baselines/csi500_lightgbm_seed42.parquet \
+    reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet \
+    reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet \
+  --dataset 30features_csi500.parquet --market csi500 \
+  --output-dir reproduction/results/csi500_all_models_notebook_exact \
+  --figures-dir reproduction/figures/csi500_all_models_notebook_exact
+```
 
 ## Static validation
 

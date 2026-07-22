@@ -108,6 +108,75 @@ and the task-local label transform, the released checkpoints and nominal seed ar
 not sufficient to reconstruct the bundled predictions exactly. This is the leading
 implementation ambiguity; it has not been resolved by changing the method.
 
+## Notebook-exact follow-up
+
+After the primary discrepancy, a second predeclared run followed the visible
+notebook choices: stock-sampling seed 42, sampling with replacement, 50-stock groups
+sorted by ID after sampling, estimator random state 0, eight estimators, and four
+resource-capped CPU workers. It wrote to a separate ignored directory and did not
+overwrite the primary result.
+
+| Model | Rows | Unique asset-dates | Repeated rows | Groups succeeded | Failed groups | Runtime (s) |
+|---|---:|---:|---:|---:|---:|---:|
+| TabPFN | 195,550 | 120,620 | 74,930 | 3,911 / 3,911 | 0 | 2,054.745 |
+| FinPFN | 195,550 | 120,620 | 74,930 | 3,911 / 3,911 | 0 | 2,078.874 |
+
+All primary/mean predictions and task-preprocessed targets are finite. The returned
+files passed local schema and metadata validation. Local SHA-256 values are recorded
+with the ignored artifacts:
+
+| Returned file | Local SHA-256 |
+|---|---|
+| `csi500_finpfn_seed42_notebook_with_replacement.parquet` | `03e62d18bf14cb6a3787213a87369adf12914d65748f8d1536a7bc5cecca76f3` |
+| `csi500_finpfn_seed42_notebook_with_replacement.metadata.json` | `ff3cff21aa9a3902af7bfc2ca21d1bfd42168325a72919b719e0ebef3431a9d0` |
+| `csi500_tabpfn_seed42_notebook_with_replacement.parquet` | `0fa76d578741b3a50a9f6e1b96009bae6fe4f884b9ce7a3fe0f52b6cec95c26a` |
+| `csi500_tabpfn_seed42_notebook_with_replacement.metadata.json` | `cafcd2ec91e981a7f9015a866baa6184bb0d067a094c6f5abae91641be9e4530` |
+
+The literal notebook IC retains repeated asset rows, matching the notebook's
+`groupby(date)` calculation:
+
+| Model | Mean IC | IC SD | IR | Bundled IR | Paper IR |
+|---|---:|---:|---:|---:|---:|
+| FinPFN | 0.043864 | 0.055013 | 0.797333 | 0.855546 | 0.85 |
+| TabPFN | -0.034296 | 0.068915 | -0.497656 | -0.442639 | -0.44 |
+
+This materially closes the FinPFN gap relative to the artifact-shape primary IR of
+0.647677, confirming that visible notebook sampling, sorting, and estimator state
+matter. It does not exactly recover the bundle because the bundle has 500 unique
+assets per date, which is incompatible with the visible with-replacement notebook
+run.
+
+For an apples-to-apples evaluation, repeated predictions were averaged per
+asset-date and all four models were restricted to the resulting 120,620 common
+asset-dates: 301 dates and an average 400.731 assets per date. IC and portfolios use
+the raw parquet return target.
+
+| Model | Mean IC | IC SD | IR | Top-decile Sharpe | True H-L Sharpe | Top cumulative (pp) | H-L cumulative (pp) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| FinPFN | 0.045597 | 0.064040 | 0.712002 | 2.366336 | 4.383559 | 13.976832 | 44.525270 |
+| TabPFN | -0.037758 | 0.072213 | -0.522875 | -4.496578 | -5.192668 | -36.666937 | -58.417991 |
+| Ridge | 0.037409 | 0.069378 | 0.539210 | 2.144884 | 4.888952 | 16.689462 | 56.456510 |
+| LightGBM | 0.036434 | 0.064305 | 0.566578 | 2.574612 | 4.810360 | 19.756541 | 54.458622 |
+
+| Model | Bottom-decile turnover | Top-decile turnover |
+|---|---:|---:|
+| FinPFN | 0.864380 | 0.917878 |
+| TabPFN | 0.916045 | 0.910539 |
+| Ridge | 0.748795 | 0.728281 |
+| LightGBM | 0.785946 | 0.764186 |
+
+Under this common raw-return IC definition, FinPFN outperforms both reconstructed
+baselines in IR. It does not outperform them in the true gross long-short Sharpe,
+top-decile cumulative return, or long-short cumulative return. The appropriate
+conclusion is therefore partial recovery of the paper's prediction-ranking result,
+not reproduction of comprehensive portfolio dominance.
+
+Direct comparison with the released bundle improved but remained far from exact.
+After collapsing repeated asset-date predictions, FinPFN had 0.463426 Spearman and
+0.533319 Pearson correlation with the bundle on 97,664 overlapping asset-dates;
+TabPFN had 0.359216 and 0.431168. The remaining mismatch is consistent with the
+unpublished bundle-generation sampling/grouping state.
+
 ## Generated artifacts
 
 Ignored outputs are under:
@@ -118,7 +187,14 @@ Ignored outputs are under:
 - `reproduction/figures/csi500_all_models_primary/` for IC, cumulative decile, and
   cumulative long-short figures;
 - `reproduction/results/bundled_prediction_comparison.csv` for direct comparison
-  with the released prediction bundle.
+  with the released prediction bundle;
+- `reproduction/results/csi500_notebook_exact/` for literal notebook IC tables;
+- `reproduction/results/csi500_all_models_notebook_exact/` and
+  `reproduction/figures/csi500_all_models_notebook_exact/` for the common raw-return
+  follow-up;
+- `reproduction/results/bundled_prediction_comparison_notebook_exact.csv` for the
+  notebook-exact/bundle prediction comparison.
 
-The CSI seed-42 checkpoint stage is complete, but the FinPFN paper result is not an
-exact reproduction. No claim of successful full reproduction is made.
+The CSI seed-42 checkpoint stage is complete. The notebook-exact follow-up partially
+recovers the FinPFN ranking result but does not exactly recover the published bundle
+or its portfolio-dominance claim. No claim of successful full reproduction is made.

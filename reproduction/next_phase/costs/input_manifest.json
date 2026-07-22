@@ -1,0 +1,51 @@
+{
+  "analysis": "CSI 500 frozen common-universe transaction-cost sensitivity",
+  "annualization": 240,
+  "cost_grid_bps_per_one_way_turnover": [
+    0,
+    2,
+    5,
+    10,
+    20,
+    30,
+    50
+  ],
+  "inputs": [
+    {
+      "path": "reproduction/results/csi500_all_models_notebook_exact/decile_holdings.parquet",
+      "size_bytes": 620886,
+      "sha256": "bfcd2ba50283f41a0ad4dc2265d7067cb570edf79a9352bbd820ae02d57d432d"
+    },
+    {
+      "path": "reproduction/results/csi500_all_models_notebook_exact/decile_returns_by_period.csv",
+      "size_bytes": 650614,
+      "sha256": "02c0c0c75d003d7c68b02565e13d373119b87b374761a7fc49e9370b2d16b14b"
+    },
+    {
+      "path": "reproduction/results/csi500_all_models_notebook_exact/turnover_by_decile.csv",
+      "size_bytes": 1284,
+      "sha256": "60c622e967db8e90f5515571d05f1c91898b14439210ae7190dca7437c7afd4a"
+    },
+    {
+      "path": "reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet",
+      "size_bytes": 4504771,
+      "sha256": "03e62d18bf14cb6a3787213a87369adf12914d65748f8d1536a7bc5cecca76f3"
+    },
+    {
+      "path": "reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet",
+      "size_bytes": 4508665,
+      "sha256": "0fa76d578741b3a50a9f6e1b96009bae6fe4f884b9ce7a3fe0f52b6cec95c26a"
+    },
+    {
+      "path": "reproduction/artifacts/predictions/csi500_baselines/csi500_ridge_seed42.parquet",
+      "size_bytes": 2375675,
+      "sha256": "a6cccd1f54f3ced4cd5165615a6c7d921d3d46d157f5a7e166a532532b6488b1"
+    },
+    {
+      "path": "reproduction/artifacts/predictions/csi500_baselines/csi500_lightgbm_seed42.parquet",
+      "size_bytes": 3587013,
+      "sha256": "0a0c7f0bcbb5e97d25dcaf73448e55f9ec97b70aa8dc5bb91d0bf0f70eae375a"
+    }
+  ],
+  "command": "reproduction/environment/audit-venv/bin/python reproduction/next_phase/costs/transaction_cost_analysis.py"
+}
