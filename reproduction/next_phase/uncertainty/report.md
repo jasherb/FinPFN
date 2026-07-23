@@ -1,78 +1,52 @@
-# Phase 2：不确定性可用性与校准审计（等待验证期 GPU 产物）
+# Phase 2：不确定性可用性与校准审计
 
-## 当前结论
+## 结论
 
-冻结的 FinPFN 与 TabPFN notebook-exact prediction artifacts **不足以进行 ensemble uncertainty 校准**。两者各有 195,550 行，只有：
+完整的 2021 validation 成员输出已经返回并通过校验。FinPFN 与 TabPFN 各有 157,200 个 group-query rows、96,859 个唯一资产—日期、60,341 个重复抽样 rows、3,144 个 groups 和 242 个日期；没有失败组或非有限预测。公开 `predict(full)` 与旁路保存的聚合 mean/median/mode/quantiles 最大绝对差均为 0。
 
-- 聚合分布中位数 `prediction`；
-- 聚合分布均值 `prediction_mean`；
-- task-local target 与运行标识。
+FinPFN 的 aggregate predictive interval width 和 predictive SD 是可测的**误差/不稳定性相关信号**，但不是已校准的 posterior uncertainty：
 
-它们没有 8 个 estimator predictions、预测标准差、分位数、区间或 logits。`abs(prediction_mean - prediction)` 可以称为聚合分布的均值—中位数分歧，但不能代表成员离散度，也不能称为 calibrated posterior uncertainty。
+| FinPFN signal | 绝对截面 z 误差 Spearman | 绝对 rank 误差 | 下一期 rank instability | 日期级 IC deterioration |
+|---|---:|---:|---:|---:|
+| predictive interval width | 0.2282 | 0.1048 | 0.0995 | 0.0186 |
+| predictive SD | 0.2198 | 0.1042 | 0.1007 | 0.0618 |
+| mean–median disagreement | 0.0700 | 0.0349 | 0.0313 | -0.0397 |
+| total member SD | 0.0074 | 0.0023 | 0.0061 | -0.0404 |
 
-| 模型 | 行数 | 聚合中位数 | 聚合均值 | 成员预测 | predictive SD | 分位数 | logits/分布 |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| FinPFN | 195,550 | 有 | 有 | 无 | 无 | 无 | 无 |
-| TabPFN | 195,550 | 有 | 有 | 无 | 无 | 无 | 无 |
+前两项在 pooled asset-date 层面与误差显著正相关，但它们不能可靠预测下一日期的总体 IC deterioration：242 个日期上的相关系数很小且不显著。逐成员离散度本身几乎没有可用关系；member rank disagreement 和 group-composition SD 与误差反而弱负相关，因此不能按“越大越不可靠”的方向直接解释。
 
-机器可读审计见 `availability_audit.csv` 和 `availability_audit.json`。
+## 关键混杂：uncertainty 同时刻画预测极端程度
 
-## TabPFN 2.0.8 API 审计
+FinPFN predictive SD 从最低到最高 quintile 时：
 
-官方 PyPI 的 `tabpfn-2.0.8.tar.gz` 只有 139.9 kB，SHA-256 为 `ffb739fc898c7144cd974a50a4185050cd5cae09405be2c81a8b6a3c7421fcbc`。源码确认：
+- 平均绝对截面 z 误差从 0.783 增至 1.525；
+- 平均绝对 rank error 从 0.276 增至 0.377；
+- 下一期 rank instability 从 0.266 增至 0.353；
+- 但预测尾部的 realized-tail precision 也从 3.45% 增至 24.51%。
 
-1. `TabPFNRegressor.predict(output_type="full")` 返回聚合后的 mean、median、mode、quantiles、criterion 和 logits；
-2. 8 个成员经各自预处理/target transform 前向传播，映射到共同 bar borders 后才合并；
-3. 公共 full output 的 logits 已是成员聚合后的分布，不保留成员维度；
-4. fitted executor 的 `iter_outputs` 可以在不改变模型的情况下取得同一批成员 forward outputs。
+predictive interval width 有同样模式，最高 quintile 的 tail precision 为 24.58%。这说明高 dispersion 与预测幅度/尾部候选强烈纠缠：它既对应更大误差，也包含更多真正的 realized tail。因而“剔除高 uncertainty”不等于提高选股质量，很可能同时删掉最有信息的极端预测。
 
-因此新增 `predict_with_members.py` 严格复写 2.0.8 的 border translation、temperature 和 aggregate-probability 逻辑，同时额外保存：
+`coverage_performance.csv` 是预先声明的 coverage 诊断，不作为单独的测试期选择依据。完整逐信号统计见 `calibration_metrics.csv` 和 `uncertainty_quantile_metrics.csv`。
 
-- 八个 member mean；
-- 八个 member median；
-- 聚合 predictive SD；
-- 聚合 q10/q25/q50/q75/q90；
-- 原有 aggregate median/mean/mode。
+## 输出来源与可复现性
 
-高维 raw logits 不落盘，因为它们体积很大，且所需 predictive interval、variance 与成员点预测已经在同一 inference pass 中无损计算。此选择没有改 checkpoint、权重、抽样、预处理、成员数或最终聚合预测。
+输入：
 
-## 本地 CPU smoke
+- TabPFN validation members SHA-256：`3a11b02dff6c97e70d2416aadb6af9a6423a7da7a5b9c14b08601d058bf92255`
+- FinPFN validation members SHA-256：`c3ea66ecf46cba10dfed4d943c79c7a84d80d7f681dd68b070de5c0cd6e9d58e`
+- CSI parquet SHA-256：`9e0d61f5d70151d4f2f7b40918a8ddb79f86fb54a0fe86759f5c1f2869fe1b3e`
 
-在 validation split 的首个 date pair、首个 with-replacement 50-stock group 上执行：
+服务器记录的推断 runtime 为 TabPFN 1,888.75 秒、FinPFN 1,908.48 秒。原始 validation parquet 位于 `artifacts/validation/`；机器可读参数、split、coverage grid 与 checksums 见 `evaluation_manifest.json`。
 
-| 模型 | 行 | group | runtime | 失败 | 非有限成员/分布输出 | 与公共 `predict(full)` 最大差 |
-|---|---:|---:|---:|---:|---:|---:|
-| TabPFN | 50 | 1/1 | 4.260 s | 0 | 0 | 0.0 |
-| FinPFN | 50 | 1/1 | 4.712 s | 0 | 0 | 0.0 |
+## 解释边界
 
-比较覆盖 aggregate mean、median、mode 和 q10/q25/q50/q75/q90。验证脚本还确认 q10 ≤ q25 ≤ q50 ≤ q75 ≤ q90，且 q50 与 baseline `prediction` 完全一致。
+- 这里测得的是 ensemble/predictive dispersion，不是经过 coverage calibration 证明的概率型后验不确定性。
+- 重复的 50-stock group 抽样、组内 target z-score、成员 preprocessing 和预测幅度都会进入 dispersion。
+- validation 不包含官方 2022 CSI shock windows，也没有独立 CIMV 序列，因此没有虚构 shock/non-shock 标签。
+- 是否具有交易增量价值必须由预声明的 Phase 3 策略验证；相关性本身不能证明经济价值。
 
-`smoke_evaluation/` 证明 validation-only collapse、raw-return join、误差统计、coverage/portfolio 和图表代码能够运行。该目录只有一个 query date，其数值**不是研究结果**，不得用于信号或阈值选择。
+## Phase 3 衔接结果
 
-## 预定校准方法
+Phase 3 的 15 个预声明候选只用 validation 选择。最佳 uncertainty 方案是 `gate_std_75pct`，但其 10 bps net Sharpe 仅 1.237，低于未修改 FinPFN 的 1.551；所有 uncertainty-adjusted score 方案更差。胜出配置是完全不使用 uncertainty 的 `rank_buffer_exit20pct`，validation net Sharpe 为 1.938。
 
-完整验证期成员 artifact 返回后，`evaluate_uncertainty.py` 会在 2021 validation 数据上计算：
-
-- total member SD、平均组内 ensemble SD、MAD、IQR；
-- 同一 asset-date 多次抽到不同 50-stock group 的 group-composition SD；
-- 8 个成员横截面 percentile-rank disagreement；
-- mean–median disagreement；
-- aggregate predictive interval width 与 predictive SD。
-
-误差统一基于 raw-return target：主要使用同日 percentile absolute rank error；数值误差使用 prediction 与 raw target 各自的全截面 z-score 后的 absolute error，避免把 task-local z prediction 直接与 decimal return 相减。还会测下一相邻日期 rank instability、实现 forward IC deterioration、tail-selection precision、uncertainty quintile error 和 coverage–performance curve。
-
-2021 validation 内没有官方硬编码的 2022 CSI shock windows，且没有 CIMV 原始序列，因此本阶段不会为验证期虚构 shock 标签。若以后在冻结测试上做 shock uncertainty 对照，只能标记为 exploratory。
-
-## 当前停止点
-
-Phase 2 现在需要完整 validation inference；这是单 GPU、服务器侧工作，所以 Codex 按约定停止，不执行 GPU、SSH 或服务器命令。人工命令见 `manual_gpu_commands.md`。
-
-预计 TabPFN 与 FinPFN 各 20–35 分钟，总计约 45–70 分钟；单张 A100 80GB、4 CPU workers，无训练。目标目录已与冻结预测分离，而且已有目标文件时 runner 会直接拒绝覆盖。
-
-完整 artifact 返回之前：
-
-- `calibration_metrics.csv` 与 `coverage_performance.csv` 尚未生成；
-- 不能判断 uncertainty 是否预测 error；
-- 不能进入 Phase 3；
-- 不能根据单组 smoke 选择任何 uncertainty score 或 gating threshold；
-- 不应运行测试期成员 inference。
+因此 Phase 2 的最终判断是：**存在统计误差相关信号，但没有观察到 uncertainty 对交易策略的增量价值。** 由于 uncertainty 方案未在 validation 胜出，不生成也不需要测试期成员 GPU artifact。
