@@ -3,6 +3,7 @@
 /reproduction/results/
 /reproduction/figures/
 /reproduction/artifacts/
+/reproduction/next_phase/**/artifacts/
 /reproduction/environment/environment.txt
 /reproduction/environment/audit-venv/
 
