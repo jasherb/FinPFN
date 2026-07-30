@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import platform
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -72,9 +71,7 @@ def load_candidates(model: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
 
 def hardware_record() -> dict[str, object]:
     return {
-        "platform": platform.platform(),
-        "machine": platform.machine(),
-        "logical_cpus": os.cpu_count(),
+        "configured_cpu_workers": 4,
     }
 
 
@@ -90,6 +87,29 @@ def run_baseline(
         candidates = candidates[: args.max_candidates]
     if not candidates:
         raise ValueError("No hyperparameter candidates selected")
+
+    repository = Path(__file__).resolve().parents[2]
+    runs_root = (repository / "reproduction/runs").resolve()
+    args.output_dir = args.output_dir.resolve()
+    try:
+        args.output_dir.relative_to(runs_root)
+    except ValueError as error:
+        raise ValueError("Baseline output must remain under reproduction/runs") from error
+
+    slug = f"{args.market}_{model_name.lower()}_seed{args.seed}"
+    if args.smoke_rows_per_split is not None:
+        slug += "_smoke"
+    declared_outputs = [
+        args.output_dir / f"{slug}.parquet",
+        args.output_dir / f"{slug}.joblib",
+        args.output_dir / f"{slug}.metadata.json",
+        args.output_dir / f"{slug}.validation_search.csv",
+    ]
+    existing = [path.name for path in declared_outputs if path.exists()]
+    if existing:
+        raise FileExistsError(
+            "Refusing to overwrite baseline artifacts: " + ", ".join(existing)
+        )
 
     train = spread_sample(
         load_panel(args.dataset, args.market, split="train"),
@@ -171,9 +191,6 @@ def run_baseline(
     )[PREDICTION_COLUMNS]
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    slug = f"{args.market}_{model_name.lower()}_seed{args.seed}"
-    if args.smoke_rows_per_split is not None:
-        slug += "_smoke"
     output.to_parquet(args.output_dir / f"{slug}.parquet", index=False)
     joblib.dump(final_estimator, args.output_dir / f"{slug}.joblib")
     metadata = {

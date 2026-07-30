@@ -508,6 +508,43 @@ def save_figures(ic: pd.DataFrame, periods: pd.DataFrame, figures: Path, market:
 
 def main() -> None:
     args = parse_args()
+    repository = Path(__file__).resolve().parents[2]
+    runs_root = (repository / "reproduction/runs").resolve()
+    args.output_dir = args.output_dir.resolve()
+    args.figures_dir = args.figures_dir.resolve()
+    for label, path in (
+        ("Evaluation", args.output_dir),
+        ("Figure", args.figures_dir),
+    ):
+        try:
+            path.relative_to(runs_root)
+        except ValueError as error:
+            raise ValueError(f"{label} output must remain under reproduction/runs") from error
+
+    declared_outputs = [
+        "model_comparison.csv",
+        "ic_by_period.csv",
+        "ic_by_subperiod.csv",
+        "portfolio_metrics.csv",
+        "decile_returns_by_period.csv",
+        "regime_metrics.csv",
+        "prediction_coverage.csv",
+        "turnover_by_decile.csv",
+        "decile_holdings.parquet",
+        "label_ranking_diagnostics.csv",
+        "evaluation_scope.json",
+    ]
+    existing = [
+        args.output_dir / name
+        for name in declared_outputs
+        if (args.output_dir / name).exists()
+    ]
+    if args.figures_dir.exists() and any(args.figures_dir.iterdir()):
+        existing.append(args.figures_dir)
+    if existing:
+        names = ", ".join(path.name for path in existing)
+        raise FileExistsError(f"Refusing to overwrite evaluation outputs: {names}")
+
     args.output_dir.mkdir(parents=True, exist_ok=True)
     predictions = pd.concat(
         [read_prediction_file(path) for path in args.predictions], ignore_index=True

@@ -7,7 +7,6 @@ import argparse
 import hashlib
 import json
 import os
-import platform
 import time
 from pathlib import Path
 
@@ -70,11 +69,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-date-pairs", type=int)
     parser.add_argument("--max-groups-per-date", type=int)
     parser.add_argument("--continue-on-error", action="store_true")
-    parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="Explicitly replace an existing prediction/metadata pair",
-    )
     return parser.parse_args()
 
 
@@ -158,9 +152,7 @@ def make_group(
 
 def hardware_record(device: str) -> dict[str, object]:
     record: dict[str, object] = {
-        "platform": platform.platform(),
-        "machine": platform.machine(),
-        "logical_cpus": os.cpu_count(),
+        "configured_cpu_workers": 4,
         "requested_device": device,
         "torch_version": torch.__version__,
         "tabpfn_version": tabpfn.__version__,
@@ -312,6 +304,13 @@ def main() -> None:
 
     repository = Path(__file__).resolve().parents[2]
     dataset = args.dataset.resolve()
+    args.output_dir = args.output_dir.resolve()
+    runs_root = (repository / "reproduction/runs").resolve()
+    try:
+        args.output_dir.relative_to(runs_root)
+    except ValueError as error:
+        raise ValueError("Checkpoint output must remain under reproduction/runs") from error
+
     frame = load_panel(dataset, args.market, split="test")
     features = validate_panel(frame, args.market)
     if frame.duplicated(["date", "id"]).any():
@@ -329,11 +328,11 @@ def main() -> None:
             prediction_path = args.output_dir / f"{slug}.parquet"
             metadata_path = args.output_dir / f"{slug}.metadata.json"
             existing = [path for path in [prediction_path, metadata_path] if path.exists()]
-            if existing and not args.overwrite:
+            if existing:
                 names = ", ".join(path.name for path in existing)
                 raise FileExistsError(
-                    f"Refusing to replace existing artifacts: {names}. "
-                    "Move them aside or pass --overwrite explicitly."
+                    f"Refusing to overwrite checkpoint artifacts: {names}. "
+                    "Choose a new run directory."
                 )
             predictions, metadata = run_model(
                 frame_by_date=frame_by_date,

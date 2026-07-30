@@ -1,0 +1,5 @@
+model,seed,dates_with_group_target,mean_ic_group_standardized_target,mean_raw_vs_group_target_rank_correlation
+FinPFN,42,143,0.06646060342140353,0.9752282495583126
+LightGBM,42,0,,
+Ridge,42,0,,
+TabPFN,42,143,0.0032470386675114613,0.9752282495583126

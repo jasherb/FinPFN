@@ -38,6 +38,23 @@ def notebook_spearman(group: pd.DataFrame) -> float:
 
 def main() -> None:
     args = parse_args()
+    repository = Path(__file__).resolve().parents[2]
+    runs_root = (repository / "reproduction/runs").resolve()
+    args.output_dir = args.output_dir.resolve()
+    try:
+        args.output_dir.relative_to(runs_root)
+    except ValueError as error:
+        raise ValueError("Notebook IC output must remain under reproduction/runs") from error
+    declared_outputs = [
+        args.output_dir / "notebook_exact_ic_by_period.csv",
+        args.output_dir / "notebook_exact_ic_summary.csv",
+    ]
+    existing = [path.name for path in declared_outputs if path.exists()]
+    if existing:
+        raise FileExistsError(
+            "Refusing to overwrite notebook IC outputs: " + ", ".join(existing)
+        )
+
     frames = []
     for path in args.predictions:
         frame = pd.read_parquet(path)

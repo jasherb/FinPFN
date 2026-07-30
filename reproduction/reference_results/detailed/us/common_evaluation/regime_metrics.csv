@@ -1,0 +1,2 @@
+market,model,seed,period,definition,n_dates,mean_ic,ic_std_ddof1,ir
+us,ALL,,official_regime_unavailable,VIX source and exact official episode dates are absent,0,,,

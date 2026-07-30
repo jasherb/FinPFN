@@ -1,0 +1,88 @@
+{
+  "analysis_scope": "frozen_us_test_external_validation_exploratory_audit",
+  "dataset": {
+    "name": "90features_USstocks.parquet",
+    "sha256": "54818c78796ecae3974b2058575cd2284482ce35e62c9116d316e23240b8ef50"
+  },
+  "protocol": {
+    "seed": 42,
+    "test_dates": 143,
+    "common_asset_dates_per_model": 71500,
+    "sampling_mode": "artifact_unique500",
+    "sample_assets_per_date": 500,
+    "stocks_per_group": 50,
+    "n_estimators": 8,
+    "estimator_random_state": 0,
+    "annualization": 12,
+    "cost_grid_bps_per_one_way_turnover": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      50
+    ],
+    "tail_k": [
+      10,
+      20,
+      40
+    ]
+  },
+  "prediction_artifacts": {
+    "FinPFN": {
+      "sha256": "36907eaf85d04d85d9429a8e4a1b0b8066a55fc82372c19e85c6736431b2f95f",
+      "rows": 71500,
+      "failed_groups": 0,
+      "checkpoint_sha256": "493e2bd458618f2ddac97da754c3f23abc61a93baa95ae127636a918d3ba7a8f",
+      "runtime_seconds": 1093.544904927956
+    },
+    "TabPFN": {
+      "sha256": "ae1d724e7a8216a25f58bba15bcd21c1e4908df8066b07ef4b7a61275ffc502a",
+      "rows": 71500,
+      "failed_groups": 0,
+      "checkpoint_sha256": "2ab5a07d5c41dfe6db9aa7ae106fc6de898326c2765be66505a07e2868c10736",
+      "runtime_seconds": 1091.787977532018
+    },
+    "Ridge": {
+      "sha256": "a293f465c63e7bfb2c2d11be41a30baeaa7ade48f124812e633dbe7979329b55",
+      "selected_parameters": {
+        "alpha": 10.0
+      },
+      "validation_mean_spearman_ic": 0.05543048222863154
+    },
+    "LightGBM": {
+      "sha256": "be22c4308b5bdf0c49151d0e3b6cf92441f77703bf53a0379c8baaad79418ad9",
+      "selected_parameters": {
+        "learning_rate": 0.02,
+        "max_depth": -1,
+        "min_child_samples": 100,
+        "n_estimators": 1200,
+        "num_leaves": 31,
+        "reg_alpha": 0.1,
+        "reg_lambda": 1.0
+      },
+      "validation_mean_spearman_ic": 0.06049392983250638
+    }
+  },
+  "compute": {
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "gpu_count_per_inference_process": 1,
+    "cpu_workers": 4,
+    "python": "3.10.20",
+    "torch": "2.5.1+cu121",
+    "cuda_runtime": "12.1",
+    "tabpfn": "2.0.8",
+    "lightgbm": "4.7.0",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit_learn": "1.6.1",
+    "scipy": "1.15.3"
+  },
+  "integrity": {
+    "duplicate_asset_dates_per_model": 0,
+    "nonfinite_predictions": 0,
+    "decile_membership_mismatches": 0,
+    "maximum_recomputed_metric_difference": 1e-12
+  }
+}

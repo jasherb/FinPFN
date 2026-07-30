@@ -1,0 +1,24 @@
+{
+  "date": {
+    "date_policy": "intersection",
+    "dates_by_model_seed": {
+      "FinPFN/seed42": 143,
+      "LightGBM/seed42": 144,
+      "Ridge/seed42": 144,
+      "TabPFN/seed42": 143
+    },
+    "intersection_date_max": "2021-12-31T00:00:00",
+    "intersection_date_min": "2010-02-28T00:00:00",
+    "intersection_dates": 143
+  },
+  "universe": {
+    "asset_dates_by_model_seed": {
+      "FinPFN/seed42": 71500,
+      "LightGBM/seed42": 782976,
+      "Ridge/seed42": 782976,
+      "TabPFN/seed42": 71500
+    },
+    "intersection_asset_dates": 71500,
+    "universe_policy": "intersection"
+  }
+}

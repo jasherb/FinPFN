@@ -1,0 +1,59 @@
+{
+  "selection_status": "frozen_before_test",
+  "selected_candidate": {
+    "name": "rank_buffer_exit20pct",
+    "kind": "rank_buffer",
+    "exit_fraction": 0.2,
+    "declared_order": 12
+  },
+  "validation_metrics": {
+    "candidate": "rank_buffer_exit20pct",
+    "kind": "rank_buffer",
+    "declared_order": 12,
+    "uncertainty_signal": null,
+    "fraction": null,
+    "lambda": null,
+    "exit_fraction": 0.2,
+    "holding_periods": null,
+    "n_dates": 242,
+    "full_universe_mean_ic": 0.05081094255663611,
+    "full_universe_ic_std_ddof1": 0.0663076947168623,
+    "full_universe_ir": 0.7662902891376601,
+    "traded_universe_mean_ic": 0.08912885294029094,
+    "traded_universe_ic_std_ddof1": 0.14154847419400277,
+    "traded_universe_ir": 0.6296701779924041,
+    "gross_long_mean_return_decimal": 0.001018035653547684,
+    "gross_short_mean_return_decimal": 0.0014291263425741407,
+    "gross_long_short_mean_return_decimal": 0.002447161996121825,
+    "gross_long_short_sharpe": 5.763158827301015,
+    "average_total_one_way_turnover": 1.6242099538925299,
+    "fixed_cost_bps_per_one_way_turnover": 10.0,
+    "net_long_short_mean_return_decimal": 0.0008229520422292951,
+    "net_long_short_sharpe": 1.9379705536873368,
+    "net_terminal_compounded_wealth": 1.213922675113937,
+    "net_maximum_drawdown": -0.06039634893334267,
+    "mean_asset_coverage": 0.199952724655981,
+    "mean_long_positions": 39.570247933884296,
+    "mean_short_positions": 40.45867768595041,
+    "mean_long_hhi": 0.025283146372246625,
+    "mean_short_hhi": 0.02472801054315817,
+    "maximum_position_weight": 0.02702702702702703,
+    "selection_rank": 1
+  },
+  "selection_protocol": {
+    "split": "validation_only",
+    "fixed_cost_bps_per_one_way_turnover": 10,
+    "annualization": 240,
+    "primary_objective": "net_long_short_sharpe",
+    "tie_breaks": [
+      "lower_average_total_one_way_turnover",
+      "higher_gross_long_short_sharpe",
+      "earlier_declared_candidate"
+    ],
+    "test_use": "selected configuration is frozen before any test member artifact is read"
+  },
+  "input_asset_date_uncertainty_sha256": "f4221a36f6ccfb986f633207b3c53ca58741ac03f7a22754a9bc97cf835288f3",
+  "validation_grid_sha256": "106bd68088ca301d26bea5514e987a65e577c4661e0a58a8d24e1d189af2ef64",
+  "input_rows": 96859,
+  "input_dates": 242
+}

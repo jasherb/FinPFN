@@ -94,6 +94,28 @@ def saved_long_short(path: Path, expected_model: str) -> pd.DataFrame:
 
 def main() -> None:
     args = parse_args()
+    repository = Path(__file__).resolve().parents[2]
+    runs_root = (repository / "reproduction/runs").resolve()
+    args.output_dir = args.output_dir.resolve()
+    try:
+        args.output_dir.relative_to(runs_root)
+    except ValueError as error:
+        raise ValueError(
+            "Baseline-consistency output must remain under reproduction/runs"
+        ) from error
+    declared_outputs = [
+        args.output_dir / "prediction_spearman_by_date.csv",
+        args.output_dir / "holdings_overlap_by_date.csv",
+        args.output_dir / "long_short_comparison.csv",
+        args.output_dir / "summary.json",
+    ]
+    existing = [path.name for path in declared_outputs if path.exists()]
+    if existing:
+        raise FileExistsError(
+            "Refusing to overwrite baseline-consistency outputs: "
+            + ", ".join(existing)
+        )
+
     ridge = read_predictions(args.ridge, "Ridge").rename(
         columns={"prediction": "ridge_prediction"}
     )

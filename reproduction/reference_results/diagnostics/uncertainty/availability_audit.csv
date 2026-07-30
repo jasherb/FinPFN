@@ -1,0 +1,3 @@
+model,rows,columns,has_aggregate_median,has_aggregate_mean,has_all_estimator_predictions,has_predictive_standard_deviation,has_quantiles,has_logits,has_distributional_outputs,metadata_n_estimators
+FinPFN,195550,12,True,True,False,False,False,False,False,8
+TabPFN,195550,12,True,True,False,False,False,False,False,8

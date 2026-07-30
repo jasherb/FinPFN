@@ -1,0 +1,44 @@
+{
+  "evaluation_status": "completed_once",
+  "selection_payload_sha256": "c834e0e3a62e90b0fcce5579f8530283ce6ecd4b9bc9fe255b060f707699f514",
+  "selected_config_file_sha256": "ef1a253127a39bbc97e90bed28a8b69a7092bc11b069119d28c6c81ec328a8b8",
+  "selected_candidate": {
+    "name": "rank_buffer_exit20pct",
+    "kind": "rank_buffer",
+    "exit_fraction": 0.2,
+    "declared_order": 12
+  },
+  "cost_bps_per_one_way_turnover": 10.0,
+  "annualization": 240,
+  "test_dates": 301,
+  "test_asset_dates": 120620,
+  "input_sha256": {
+    "dataset": "9e0d61f5d70151d4f2f7b40918a8ddb79f86fb54a0fe86759f5c1f2869fe1b3e",
+    "common_holdings": "bfcd2ba50283f41a0ad4dc2265d7067cb570edf79a9352bbd820ae02d57d432d",
+    "frozen_portfolio_metrics": "88aac0f9c11d3981632d2599f5c54d31ab30233f8767d81c8b4a1b9c4cf7a1de",
+    "FinPFN_predictions": "03e62d18bf14cb6a3787213a87369adf12914d65748f8d1536a7bc5cecca76f3",
+    "Ridge_predictions": "a6cccd1f54f3ced4cd5165615a6c7d921d3d46d157f5a7e166a532532b6488b1",
+    "LightGBM_predictions": "0a0c7f0bcbb5e97d25dcaf73448e55f9ec97b70aa8dc5bb91d0bf0f70eae375a"
+  },
+  "frozen_gross_sharpe_checks": {
+    "FinPFN": {
+      "observed": 4.383558921159607,
+      "expected_constant": 4.383558921159609,
+      "stored_portfolio_metrics": 4.383558921159609,
+      "maximum_absolute_difference": 1.7763568394002505e-15
+    },
+    "Ridge": {
+      "observed": 4.888952290269178,
+      "expected_constant": 4.888952290269178,
+      "stored_portfolio_metrics": 4.888952290269178,
+      "maximum_absolute_difference": 0.0
+    },
+    "LightGBM": {
+      "observed": 4.810359613592668,
+      "expected_constant": 4.810359613592669,
+      "stored_portfolio_metrics": 4.810359613592669,
+      "maximum_absolute_difference": 8.881784197001252e-16
+    }
+  },
+  "runtime_seconds": 3.764127708011074
+}

@@ -1,0 +1,5 @@
+model,seed,prediction_rows,available_asset_dates,prediction_coverage,failed_rows,repeated_asset_predictions,maximum_repetitions,evaluation_prediction_rows,evaluation_prediction_coverage
+FinPFN,42,71500,782976,0.09131825241131274,0,0,1,71500,0.09131825241131274
+LightGBM,42,782976,782976,1.0,0,0,1,71500,0.09131825241131274
+Ridge,42,782976,782976,1.0,0,0,1,71500,0.09131825241131274
+TabPFN,42,71500,782976,0.09131825241131274,0,0,1,71500,0.09131825241131274

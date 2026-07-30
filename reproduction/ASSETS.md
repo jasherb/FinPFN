@@ -25,4 +25,7 @@ sha256sum models/*.ckpt
 
 On macOS, replace `sha256sum` with `shasum -a 256`. The complete declared checksum files are [data_checksums.sha256](configs/data_checksums.sha256) and [checksums.sha256](configs/checksums.sha256).
 
-Generated parquets, fitted baseline models, logs, and full evaluation directories remain ignored. The compact aggregate CSVs and figures committed under `reproduction/next_phase/` contain no source feature panel or model weights.
+Generated parquets, fitted baseline models, logs, and full evaluation
+directories remain ignored. The compact aggregate CSVs and figures under
+`reproduction/reference_results/` contain no source feature panel or model
+weights.

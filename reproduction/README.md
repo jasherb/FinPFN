@@ -1,37 +1,36 @@
-# Reproduction and audit code
+# Reproduction package
 
-This directory contains the independent FinPFN reproduction and model-risk audit. It is intentionally separated from the upstream training and notebook code.
+This directory contains the independent FinPFN reproduction and model-risk
+audit. The upstream notebook and training utilities remain at the repository
+root and under `scripts/`; root documentation and dependency metadata were
+adapted for this public release.
 
-## Frozen scope
-
-- Released-checkpoint inference for FinPFN and vanilla TabPFN; no FinPFN retraining.
-- Validation-only model selection for independently reconstructed Ridge and LightGBM baselines.
-- CSI 500 and U.S. common-universe evaluation on one raw-return target per market.
-- Cross-sectional IC/IR, actual top-minus-bottom Sharpe, turnover, transaction costs, tail precision, rank stability, and uncertainty diagnostics.
-- Final research decision: stop tuning on the existing test sets and retain the project as a reproduction and model-risk audit.
-
-The consolidated English report is [AUDIT_REPORT.md](AUDIT_REPORT.md). Source assets and checksums are documented in [ASSETS.md](ASSETS.md).
-
-## Directory map
+## Public layout
 
 ```text
 reproduction/
-  configs/       # declared searches, inference settings, checksums
-  environment/   # environment specifications and captured versions
-  notes/         # CSI audit, command log, checkpoint runbook
-  scripts/       # baseline, inference, evaluation, and integrity code
-  next_phase/    # cost, uncertainty, gating, tail, and U.S. analyses
-  public/        # README-figure generator and committed public figures
+  analyses/           # cost, uncertainty, turnover, tail, and U.S. analysis code
+  configs/            # predeclared searches, inference settings, and checksums
+  environment/        # pinned CPU and CUDA 12.1 environments
+  reference_results/  # immutable aggregate tables, diagnostics, and figures
+  scripts/            # baseline, checkpoint, evaluation, and release utilities
+  tests/              # data-free release and repository-hygiene checks
+  runs/                # generated outputs; ignored by Git
 ```
 
-Large or sensitive runtime products are excluded:
+The headline evidence is consolidated in [REPORT.md](REPORT.md). Exact commands
+are in [REPRODUCIBILITY.md](REPRODUCIBILITY.md), and externally obtained assets
+are documented in [ASSETS.md](ASSETS.md).
 
-```text
-reproduction/artifacts/
-reproduction/results/
-reproduction/logs/
-reproduction/figures/
-reproduction/next_phase/**/artifacts/
+## Reproducibility boundary
+
+`reference_results/` is read-only evidence for this release. Analysis and
+inference commands write to `reproduction/runs/` by default and refuse to
+overwrite an existing run. Datasets, checkpoints, fitted models, generated
+predictions, holdings, logs, and environment captures are not committed.
+
+Run the data-free release verification from the repository root:
+
+```bash
+python3 reproduction/tests/verify_release.py
 ```
-
-For the complete human-run commands, use the [CSI checkpoint runbook](notes/manual_checkpoint_runbook.md), [command record](notes/commands.md), and [U.S. runbook](next_phase/us_external_validation/manual_commands.md). The scripts use repository-relative paths and refuse to overwrite the principal frozen outputs unless an explicit overwrite flag is passed.

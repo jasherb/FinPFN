@@ -1,7 +1,1 @@
-tabpfn==2.0.8
-ruff
-lightgbm
-pynvml
-wandb
-schedulefree
-seaborn
+-r reproduction/environment/requirements-cpu-lock.txt

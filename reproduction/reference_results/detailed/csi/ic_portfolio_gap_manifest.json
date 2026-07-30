@@ -1,0 +1,78 @@
+{
+  "analysis_scope": "frozen_test_exploratory_mechanism_audit",
+  "percentile_bins": 20,
+  "tail_k": [
+    10,
+    20,
+    40
+  ],
+  "annualization": 240,
+  "inputs": {
+    "dataset": {
+      "path": "30features_csi500.parquet",
+      "sha256": "9e0d61f5d70151d4f2f7b40918a8ddb79f86fb54a0fe86759f5c1f2869fe1b3e"
+    },
+    "common_holdings": {
+      "path": "reproduction/results/csi500_all_models_notebook_exact/decile_holdings.parquet",
+      "sha256": "bfcd2ba50283f41a0ad4dc2265d7067cb570edf79a9352bbd820ae02d57d432d"
+    },
+    "FinPFN_predictions": {
+      "path": "reproduction/artifacts/csi500_notebook_exact/csi500_finpfn_seed42_notebook_with_replacement.parquet",
+      "sha256": "03e62d18bf14cb6a3787213a87369adf12914d65748f8d1536a7bc5cecca76f3"
+    },
+    "TabPFN_predictions": {
+      "path": "reproduction/artifacts/csi500_notebook_exact/csi500_tabpfn_seed42_notebook_with_replacement.parquet",
+      "sha256": "0fa76d578741b3a50a9f6e1b96009bae6fe4f884b9ce7a3fe0f52b6cec95c26a"
+    },
+    "Ridge_predictions": {
+      "path": "reproduction/artifacts/predictions/csi500_baselines/csi500_ridge_seed42.parquet",
+      "sha256": "a6cccd1f54f3ced4cd5165615a6c7d921d3d46d157f5a7e166a532532b6488b1"
+    },
+    "LightGBM_predictions": {
+      "path": "reproduction/artifacts/predictions/csi500_baselines/csi500_lightgbm_seed42.parquet",
+      "sha256": "0a0c7f0bcbb5e97d25dcaf73448e55f9ec97b70aa8dc5bb91d0bf0f70eae375a"
+    }
+  },
+  "validation_checks": {
+    "rows": 482480,
+    "dates": 301,
+    "asset_dates_per_model": 120620,
+    "mean_ic": {
+      "FinPFN": 0.04559685291395156,
+      "Ridge": 0.0374090905011318,
+      "LightGBM": 0.03643387027794352,
+      "TabPFN": -0.037758247031813755
+    },
+    "mean_ic_absolute_difference": {
+      "FinPFN": 6.938893903907228e-18,
+      "Ridge": 0.0,
+      "LightGBM": 6.938893903907228e-18,
+      "TabPFN": 2.276430689784892e-09
+    },
+    "maximum_per_date_ic_absolute_difference": 6.852056363415571e-07,
+    "per_date_ic_differences_above_1e-12": 1,
+    "decile_assignment_mismatches": 0,
+    "long_short_sharpe": {
+      "FinPFN": {
+        "observed": 4.383558921159606,
+        "expected": 4.383558921159609,
+        "absolute_difference": 2.6645352591003757e-15
+      },
+      "LightGBM": {
+        "observed": 4.810359613592669,
+        "expected": 4.810359613592669,
+        "absolute_difference": 0.0
+      },
+      "Ridge": {
+        "observed": 4.888952290269177,
+        "expected": 4.888952290269178,
+        "absolute_difference": 8.881784197001252e-16
+      },
+      "TabPFN": {
+        "observed": -5.192668051967354,
+        "expected": -5.192668051967355,
+        "absolute_difference": 8.881784197001252e-16
+      }
+    }
+  }
+}

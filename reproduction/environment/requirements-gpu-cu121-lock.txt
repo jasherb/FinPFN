@@ -1,0 +1,9 @@
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+-r requirements-cpu-lock.txt
+
+nvidia-ml-py==13.610.43
+schedulefree==1.4.1
+tabpfn==2.0.8
+torch==2.5.1+cu121
+wandb==0.28.1

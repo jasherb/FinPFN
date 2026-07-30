@@ -1,0 +1,35 @@
+{
+  "protocol": {
+    "split": "validation_only",
+    "fixed_cost_bps_per_one_way_turnover": 10,
+    "annualization": 240,
+    "primary_objective": "net_long_short_sharpe",
+    "tie_breaks": [
+      "lower_average_total_one_way_turnover",
+      "higher_gross_long_short_sharpe",
+      "earlier_declared_candidate"
+    ],
+    "test_use": "selected configuration is frozen before any test member artifact is read"
+  },
+  "uncertainty_signals": [
+    "predictive_interval_width",
+    "predictive_std"
+  ],
+  "candidates": [
+    {"name": "finpfn_unmodified", "kind": "unmodified"},
+    {"name": "gate_interval_75pct", "kind": "confidence_gate", "uncertainty_signal": "predictive_interval_width", "fraction": 0.75},
+    {"name": "gate_interval_50pct", "kind": "confidence_gate", "uncertainty_signal": "predictive_interval_width", "fraction": 0.50},
+    {"name": "gate_std_75pct", "kind": "confidence_gate", "uncertainty_signal": "predictive_std", "fraction": 0.75},
+    {"name": "gate_std_50pct", "kind": "confidence_gate", "uncertainty_signal": "predictive_std", "fraction": 0.50},
+    {"name": "adjust_interval_lambda025", "kind": "uncertainty_adjusted", "uncertainty_signal": "predictive_interval_width", "lambda": 0.25},
+    {"name": "adjust_interval_lambda050", "kind": "uncertainty_adjusted", "uncertainty_signal": "predictive_interval_width", "lambda": 0.50},
+    {"name": "adjust_interval_lambda100", "kind": "uncertainty_adjusted", "uncertainty_signal": "predictive_interval_width", "lambda": 1.00},
+    {"name": "adjust_std_lambda025", "kind": "uncertainty_adjusted", "uncertainty_signal": "predictive_std", "lambda": 0.25},
+    {"name": "adjust_std_lambda050", "kind": "uncertainty_adjusted", "uncertainty_signal": "predictive_std", "lambda": 0.50},
+    {"name": "adjust_std_lambda100", "kind": "uncertainty_adjusted", "uncertainty_signal": "predictive_std", "lambda": 1.00},
+    {"name": "rank_buffer_exit15pct", "kind": "rank_buffer", "exit_fraction": 0.15},
+    {"name": "rank_buffer_exit20pct", "kind": "rank_buffer", "exit_fraction": 0.20},
+    {"name": "minimum_holding_2", "kind": "minimum_holding", "holding_periods": 2},
+    {"name": "minimum_holding_3", "kind": "minimum_holding", "holding_periods": 3}
+  ]
+}
