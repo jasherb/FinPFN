@@ -1,80 +1,69 @@
-## Official Code for the Paper "Meta-learning for Return Prediction in Shifting Market Regimes" (JFM)
+# FinPFN Reproduction & Model-Risk Audit
 
-In this paper, we propose the Financial Prior-Data Fitted Network ([FinPFN](https://doi.org/10.1016/j.finmar.2025.101042)).
-* We develop a meta-learning framework for regime-adaptive cross-sectional return prediction.
-* Conditioning on recent feature–return pairs captures evolving market dynamics.
-* Prior-data Fitted Network (PFN) enables flexible, efficient adaptation to regimes.
-* FinPFN outperforms benchmarks in volatile and structurally shifting markets.
-* We provide a practical tool for resilient signal generation in dynamic asset pricing contexts.
+**Research question:** Does FinPFN's stronger cross-sectional ranking accuracy translate into better tradable long–short portfolios across China and U.S. equities?
 
-__Getting Started__
+## Core results
 
-This is a Python project, we used `Python 3.10` in development and recommend to use a `virtualenv` or `conda`.
-To use our code, clone the project with
+All four models are evaluated on the same asset-date universe and the same raw-return target within each market. Sharpe is computed from the actual top-minus-bottom return series; CSI 500 is daily (301 test dates) and U.S. is monthly (143 test months).
 
-```
-git clone git@github.com:wangy8989/FinPFN.git
-```
+| Market | Model | Mean IC | IR | Gross H–L Sharpe | Net H–L Sharpe at 10 bps |
+|---|---|---:|---:|---:|---:|
+| CSI 500 | **FinPFN** | **0.0456** | **0.712** | 4.384 | -0.900 |
+| CSI 500 | Ridge | 0.0374 | 0.539 | **4.889** | **1.035** |
+| CSI 500 | LightGBM | 0.0364 | 0.567 | 4.810 | 0.686 |
+| CSI 500 | TabPFN | -0.0378 | -0.523 | -5.193 | -10.097 |
+| U.S. | **FinPFN** | **0.0665** | **0.590** | 1.040 | 0.901 |
+| U.S. | Ridge | 0.0439 | 0.540 | 1.592 | 1.426 |
+| U.S. | LightGBM | 0.0432 | 0.566 | **1.620** | **1.473** |
+| U.S. | TabPFN | 0.0021 | 0.019 | -0.009 | -0.148 |
 
-install all dependencies with
+![Mean cross-sectional IC and IR for all four models in both markets](reproduction/public/figures/ic_ir_overview.png)
 
-```
-pip install -r requirements.txt
-```
+![U.S. IC versus long-short Sharpe and realized-tail precision](reproduction/public/figures/ic_portfolio_gap.png)
 
-The [TabPFN](https://github.com/PriorLabs/TabPFN) version we used is `2.0.8`.
+## Three findings
 
-The code is forked from [finetune_tabpfn_v2](https://github.com/LennartPurucker/finetune_tabpfn_v2).
+1. **The statistical result is real but only partially reproduces the headline claim.** FinPFN has the highest common-universe IC/IR in both markets; the literal CSI notebook protocol yields IR 0.797 versus 0.85 reported in the paper.
+2. **Higher IC did not produce the best portfolio.** Ridge and LightGBM have higher gross long–short Sharpe in both markets. FinPFN's U.S. top-40 precision is 6.1%, below the 8% random-selection rate, despite its strong bottom-tail precision.
+3. **The gap is concentrated in tradable tails and stability.** FinPFN improves broad cross-sectional ordering but has weaker extreme-long selection and lower rank persistence. Uncertainty gating did not improve validation net Sharpe, and a validation-selected turnover buffer failed its one-shot CSI test.
 
+## Reproduce
 
-__Training a model__
+Datasets, released checkpoints, generated predictions, and logs are intentionally excluded. First place the verified assets at the paths in [ASSETS.md](reproduction/ASSETS.md), then install the top-level requirements.
 
-[data_utils.py](scripts/training_utils/data_utils.py) provides the dataloader of financial data prior for the model.
+```bash
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
 
-[main.py](scripts/main.py) provides methods to finetune a TabPFN model.
+# CSI 500: validation-selected CPU baselines
+python reproduction/scripts/train_ridge.py \
+  --dataset 30features_csi500.parquet --market csi500 \
+  --output-dir reproduction/artifacts/predictions/csi500_baselines --seed 42
+python reproduction/scripts/train_lightgbm.py \
+  --dataset 30features_csi500.parquet --market csi500 \
+  --output-dir reproduction/artifacts/predictions/csi500_baselines --seed 42
 
+# CSI 500: released-checkpoint inference on one GPU
+CUDA_VISIBLE_DEVICES=0 \
+  bash reproduction/scripts/run_csi_checkpoint_notebook_exact.sh
 
-__Evaluating Models__
+# U.S.: baselines, released-checkpoint inference, and frozen evaluation
+bash reproduction/next_phase/us_external_validation/scripts/run_us_baselines.sh
+CUDA_VISIBLE_DEVICES=0 \
+  bash reproduction/next_phase/us_external_validation/scripts/run_us_checkpoints.sh
+bash reproduction/next_phase/us_external_validation/scripts/evaluate_us_common.sh
+bash reproduction/next_phase/us_external_validation/scripts/run_us_full_analysis.sh
 
-[finpfn.ipynb](finpfn.ipynb) provides a workflow to train and evaluate models.
-
-
-__Downloading Data__
-
-[Data link](https://1drv.ms/f/c/ada3d0b0856299f2/IgA5rSYiS684Rpoo5u1S8AcfAYGx-OuQw3YiyGb4ePJcHBA?e=GdgK1i) with password redacted
-
-
-__Cite__
-
-When using, please cite [FinPFN](https://doi.org/10.1016/j.finmar.2025.101042)
-```
-@article{wang2025finpfn,
- title = {Meta-learning for return prediction in shifting market regimes},
- journal = {Journal of Financial Markets},
- pages = {101042},
- year = {2025},
- issn = {1386-4181},
- doi = {https://doi.org/10.1016/j.finmar.2025.101042},
- url = {https://www.sciencedirect.com/science/article/pii/S1386418125000825},
- author = {Yicheng Wang and Sandro Claudio Lera},
- keywords = {Financial machine learning, Return prediction, Regime shifts, Meta-learning},
- abstract = {We propose a meta-learning framework for cross-sectional return prediction that adapts to regime-dependent dynamics. Instead of learning a fixed mapping from features to returns, we condition our model forecasts on recent feature-return relationships. This allows it to adjust to evolving market states without explicit regime labels or frequent re-estimation. We implement the framework with a Transformer-based Bayesian predictor, the Financial Prior-data Fitted Network (FinPFN), and evaluate it on daily Chinese A-shares and monthly U.S. equities. During regime changes, proxied by large volatility shifts, our method significantly outperforms benchmarks, offering a practical tool for dynamic return prediction.}
-}
+# Regenerate the two README figures and corrected tail-precision figure
+python reproduction/public/make_readme_figures.py
 ```
 
-TabPFNs were from
-```
-@article{hollmann2025tabpfn,
- title={Accurate predictions on small data with a tabular foundation model},
- author={Hollmann, Noah and M{\"u}ller, Samuel and Purucker, Lennart and
-         Krishnakumar, Arjun and K{\"o}rfer, Max and Hoo, Shi Bin and
-         Schirrmeister, Robin Tibor and Hutter, Frank},
- journal={Nature},
- year={2025},
- month={01},
- day={09},
- doi={10.1038/s41586-024-08328-6},
- publisher={Springer Nature},
- url={https://www.nature.com/articles/s41586-024-08328-6},
-}
-```
+Exact environment details, checksums, evaluation commands, and non-overwrite runbooks are in the [full audit report](reproduction/AUDIT_REPORT.md), [CSI checkpoint runbook](reproduction/notes/manual_checkpoint_runbook.md), and [U.S. runbook](reproduction/next_phase/us_external_validation/manual_commands.md).
+
+## Limitations
+
+- This is an independent checkpoint reproduction and model-risk audit, not a complete retraining of FinPFN. The exact released CSI predictions cannot be regenerated from the visible notebook because its sampling behavior differs from the published artifact.
+- Point-in-time feature construction and forward-return alignment cannot be independently verified from the final parquet files. The U.S. protocol samples a new 500-stock universe each month, so its raw turnover is not a live full-universe estimate.
+- Linear transaction costs omit market impact, borrowing, financing, capacity, and execution constraints. Post-test mechanism analysis is diagnostic, not an unbiased strategy backtest.
+- The upstream BSD-3-Clause license is preserved. Original FinPFN code and this audit's additions are identified in [UPSTREAM_ATTRIBUTION.md](UPSTREAM_ATTRIBUTION.md); restricted data and model files are obtained from their original providers and are not redistributed here.

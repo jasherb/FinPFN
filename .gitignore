@@ -6,11 +6,23 @@
 /reproduction/next_phase/**/artifacts/
 /reproduction/environment/environment.txt
 /reproduction/environment/audit-venv/
+/.idea/
 
 *.parquet
 *.joblib
 *.ckpt
+*.pt
+*.pth
+*.safetensors
 *.log
+/results/*.csv.gz
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
 wandb/
 __pycache__/
 .DS_Store
